@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Initialize Your Fleet | PromptOps</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="assets/brutalist.css" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: "#0a0a0a", paper: "#ffffff", "paper-alt": "#f2f1ec", "paper-dim": "#e4e2d8",
+          accent: "#3d5afe", "accent-dark": "#0031ca", "accent-light": "#e8eaff",
+          good: "#00c853", "good-dark": "#007a3d", "good-light": "#dcffea",
+          warn: "#ffab00", "warn-dark": "#a66900", "warn-light": "#fff3d6",
+          bad: "#ff1744", "bad-dark": "#a4001e", "bad-light": "#ffdde3"
+        },
+        fontFamily: { display: ["Space Grotesk", "sans-serif"], mono: ["JetBrains Mono", "monospace"], sans: ["Inter", "sans-serif"] },
+        borderRadius: { none: "0px", DEFAULT: "0px", sm: "0px", md: "2px", lg: "2px", xl: "2px", full: "9999px" }
+      }
+    }
+  }
+</script>
+<style>
+  .step-transition { transition: opacity .2s ease; }
+  .step-hidden { display: none; opacity: 0; }
+  input[type="range"] { accent-color: var(--accent); }
+  input[type="range"]::-webkit-slider-runnable-track { background: var(--ink); height: 4px; }
+  .nav-step .indicator { width: 4px; background: var(--paper-dim); border: 2px solid var(--ink); }
+  .nav-step.is-active .indicator { background: var(--accent); }
+  .nav-step.is-done .indicator { background: var(--good); }
+</style>
+</head>
+<body class="bg-paper-alt text-ink font-sans antialiased min-h-screen flex flex-col">
+<!-- Header -->
+<header class="h-16 flex items-center justify-between px-6 md:px-10 border-ink-b bg-paper">
+  <a href="landing.html" class="font-display text-xl font-bold tracking-tight flex items-center gap-2">
+    <span class="w-3 h-3 bg-accent border-ink-thin inline-block"></span>
+    PROMPT<span class="text-accent">OPS</span>
+  </a>
+  <nav class="hidden md:flex gap-2">
+    <a class="font-mono text-xs uppercase font-bold px-3 py-2 hover:bg-paper-dim transition-colors" href="console.html">Console</a>
+    <a class="font-mono text-xs uppercase font-bold px-3 py-2 hover:bg-paper-dim transition-colors" href="dashboard.html">Dependencies</a>
+    <a class="font-mono text-xs uppercase font-bold px-3 py-2 hover:bg-paper-dim transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Docs</a>
+  </nav>
+</header>
+
+<main class="flex-grow flex items-center justify-center p-4 md:p-8">
+  <div class="max-w-4xl w-full grid grid-cols-1 md:grid-cols-12 card-brutal shadow-brutal-accent relative overflow-hidden bg-paper">
+    <div class="absolute top-0 right-0 p-4 opacity-[0.06] pointer-events-none">
+      <span class="material-symbols-outlined text-[160px]">settings_input_component</span>
+    </div>
+
+    <!-- Left Panel -->
+    <div class="md:col-span-4 flex flex-col justify-between border-ink-b md:border-ink-b-0 md:border-r-[3px] md:border-ink p-8">
+      <div>
+        <h1 class="font-display text-2xl font-bold mb-3">Initialize Your Fleet</h1>
+        <p class="text-sm text-ink/70 mb-8">Configure the operational parameters for your automated prompt engineering lifecycle. This wizard mirrors the values your backend reads from <code class="font-mono bg-paper-alt px-1">.env</code> — it does not replace it.</p>
+        <nav class="space-y-6">
+          <div class="nav-step is-active flex items-center gap-3" id="nav-step-1">
+            <div class="indicator h-8"></div>
+            <div class="flex flex-col">
+              <span class="font-mono text-[10px] uppercase text-ink/50">Step 01</span>
+              <span class="font-mono text-sm font-bold">Graph DB</span>
+            </div>
+          </div>
+          <div class="nav-step flex items-center gap-3 opacity-50" id="nav-step-2">
+            <div class="indicator h-8"></div>
+            <div class="flex flex-col">
+              <span class="font-mono text-[10px] uppercase text-ink/50">Step 02</span>
+              <span class="font-mono text-sm">Source Control</span>
+            </div>
+          </div>
+          <div class="nav-step flex items-center gap-3 opacity-50" id="nav-step-3">
+            <div class="indicator h-8"></div>
+            <div class="flex flex-col">
+              <span class="font-mono text-[10px] uppercase text-ink/50">Step 03</span>
+              <span class="font-mono text-sm">Policy Engine</span>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div class="mt-8 pt-6 border-ink-t">
+        <div class="flex items-center gap-2 text-ink/60">
+          <span class="material-symbols-outlined text-[16px]">verified_user</span>
+          <span class="font-mono text-[10px] uppercase tracking-widest">Local .env — nothing leaves this browser</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="md:col-span-8 p-8">
+      <form id="onboarding-form" onsubmit="return false">
+        <!-- Step 1: Neo4j Graph -->
+        <div class="step-content step-transition" id="step-1">
+          <div class="mb-6">
+            <h2 class="font-display text-lg font-bold mb-1">Connect your Neo4j Graph</h2>
+            <p class="text-sm text-ink/70">Matches NEO4J_URI / NEO4J_USER / NEO4J_PASSWORD in your .env. Leave blank and skip if you're running with the graph disabled.</p>
+          </div>
+          <div class="space-y-4">
+            <div class="flex flex-col gap-1">
+              <label class="font-mono text-xs uppercase font-bold text-ink/60">Database URI</label>
+              <input class="input-brutal px-4 py-2 text-sm w-full" id="neo4j-uri" placeholder="bolt://localhost:7687" type="text"/>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1">
+                <label class="font-mono text-xs uppercase font-bold text-ink/60">Username</label>
+                <input class="input-brutal px-4 py-2 text-sm w-full" id="neo4j-user" placeholder="neo4j" type="text"/>
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="font-mono text-xs uppercase font-bold text-ink/60">Password</label>
+                <input class="input-brutal px-4 py-2 text-sm w-full" id="neo4j-pass" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" type="password"/>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8 flex items-center justify-between">
+            <button class="font-mono text-xs uppercase font-bold hover:text-accent transition-colors" onclick="goToStep(2)" type="button">Skip for now</button>
+            <button class="btn-brutal btn-brutal-accent px-6 py-3 font-mono text-xs uppercase font-bold flex items-center gap-2" onclick="goToStep(2)" type="button">
+              Continue
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Source Control -->
+        <div class="step-content step-transition step-hidden" id="step-2">
+          <div class="mb-6">
+            <h2 class="font-display text-lg font-bold mb-1">Point to your Prompts</h2>
+            <p class="text-sm text-ink/70">Establish a secure link to your prompt repository for versioning and CI/CD.</p>
+          </div>
+          <div class="space-y-4">
+            <div class="flex flex-col gap-1">
+              <label class="font-mono text-xs uppercase font-bold text-ink/60">GitHub Repo URL</label>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink/50">folder_open</span>
+                <input class="input-brutal pl-11 pr-4 py-2 text-sm w-full" id="repo-url" placeholder="https://github.com/aanayagrawal0-dev/promptops" type="text"/>
+              </div>
+            </div>
+            <div class="bg-accent-light p-4 border-ink-l">
+              <div class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-accent-dark text-[20px]">info</span>
+                <p class="text-sm text-ink/80">This build stores prompts and templates in SQLite/Postgres, not by scanning files — this field is for reference/CI wiring, not required for the demo to run.</p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8 flex items-center justify-between">
+            <button class="font-mono text-xs uppercase font-bold hover:text-accent transition-colors flex items-center gap-1" onclick="goToStep(1)" type="button">
+              <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+              Back
+            </button>
+            <button class="btn-brutal btn-brutal-accent px-6 py-3 font-mono text-xs uppercase font-bold flex items-center gap-2" onclick="goToStep(3)" type="button">
+              Continue
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Policies -->
+        <div class="step-content step-transition step-hidden" id="step-3">
+          <div class="mb-6">
+            <h2 class="font-display text-lg font-bold mb-1">Set Severity Thresholds</h2>
+            <p class="text-sm text-ink/70">Matches PROMPTOPS_THRESHOLD in your .env — below this score, a prompt auto-rolls back.</p>
+          </div>
+          <div class="space-y-8">
+            <div class="flex flex-col gap-3">
+              <div class="flex justify-between items-center">
+                <label class="font-mono text-xs uppercase font-bold text-ink/60">Auto-Rollback Threshold</label>
+                <span class="font-mono font-bold text-accent" id="slider-val">80%</span>
+              </div>
+              <input class="w-full cursor-pointer" id="threshold-slider" max="99" min="50" oninput="document.getElementById('slider-val').innerText = this.value + '%'" type="range" value="80"/>
+              <div class="flex justify-between font-mono text-[10px] uppercase text-ink/50">
+                <span>Conservative</span>
+                <span>Aggressive</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8 flex items-center justify-between">
+            <button class="font-mono text-xs uppercase font-bold hover:text-accent transition-colors flex items-center gap-1" onclick="goToStep(2)" type="button">
+              <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+              Back
+            </button>
+            <button class="btn-brutal btn-brutal-accent px-6 py-3 font-mono text-xs uppercase font-bold flex items-center gap-2" id="finalize-btn" type="submit">
+              Finalize Initialization
+              <span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+            </button>
+          </div>
+          <div id="finalize-result" class="mt-4 hidden bg-good-light p-4 border-ink-l" style="border-left-color: var(--good);">
+            <p class="text-sm text-ink/80">Copy these into your <code class="font-mono">.env</code> file, then restart the backend:</p>
+            <pre id="env-output" class="font-mono text-sm mt-2 p-3 bg-paper border-ink-thin overflow-x-auto"></pre>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-ink text-paper border-ink-t py-6 px-6 md:px-10 flex flex-col md:flex-row justify-between items-center w-full">
+  <div class="font-mono text-xs text-paper/60 mb-4 md:mb-0">Built for HACKHAZARDS '26</div>
+  <div class="flex gap-8">
+    <a class="font-mono text-sm text-paper/80 hover:text-accent transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Github</a>
+  </div>
+</footer>
+
+<script>
+  function goToStep(stepNumber) {
+    document.querySelectorAll('.step-content').forEach(el => {
+      el.classList.add('step-hidden');
+    });
+    document.getElementById(`step-${stepNumber}`).classList.remove('step-hidden');
+
+    document.querySelectorAll('.nav-step').forEach((navItem, index) => {
+      const stepIdx = index + 1;
+      navItem.classList.remove('is-active', 'is-done');
+      if (stepIdx === stepNumber) {
+        navItem.classList.remove('opacity-50');
+        navItem.classList.add('is-active');
+        navItem.querySelector('span.font-mono.text-sm').classList.add('font-bold');
+      } else if (stepIdx < stepNumber) {
+        navItem.classList.remove('opacity-50');
+        navItem.classList.add('is-done');
+      } else {
+        navItem.classList.add('opacity-50');
+      }
+    });
+  }
+
+  // FINALIZE: since this is a static page with no server of its own,
+  // it can't write your .env file directly. Instead it renders the
+  // exact lines to paste in, using whatever you actually entered.
+  document.getElementById('onboarding-form').addEventListener('submit', () => {
+    const uri = document.getElementById('neo4j-uri').value || '(not set — graph disabled)';
+    const user = document.getElementById('neo4j-user').value || 'neo4j';
+    const threshold = (Number(document.getElementById('threshold-slider').value) / 100).toFixed(2);
+    const graphDisabled = document.getElementById('neo4j-uri').value ? 'false' : 'true';
+
+    const lines = [
+      `PROMPTOPS_THRESHOLD=${threshold}`,
+      `PROMPTOPS_GRAPH_DISABLED=${graphDisabled}`,
+      `NEO4J_URI=${uri}`,
+      `NEO4J_USER=${user}`,
+    ].join('\n');
+
+    document.getElementById('env-output').textContent = lines;
+    document.getElementById('finalize-result').classList.remove('hidden');
+    document.getElementById('finalize-btn').textContent = 'CONFIGURATION READY BELOW';
+  });
+</script>
+</body>
+</html>

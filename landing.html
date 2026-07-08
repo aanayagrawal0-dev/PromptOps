@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>PromptOps | High-Performance Prompt Workflows</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="assets/brutalist.css" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: "#0a0a0a", paper: "#ffffff", "paper-alt": "#f2f1ec", "paper-dim": "#e4e2d8",
+          accent: "#3d5afe", "accent-dark": "#0031ca", "accent-light": "#e8eaff",
+          good: "#00c853", "good-dark": "#007a3d", "good-light": "#dcffea",
+          warn: "#ffab00", "warn-dark": "#a66900", "warn-light": "#fff3d6",
+          bad: "#ff1744", "bad-dark": "#a4001e", "bad-light": "#ffdde3"
+        },
+        fontFamily: { display: ["Space Grotesk", "sans-serif"], mono: ["JetBrains Mono", "monospace"], sans: ["Inter", "sans-serif"] },
+        borderRadius: { none: "0px", DEFAULT: "0px", sm: "0px", md: "2px", lg: "2px", xl: "2px", full: "9999px" }
+      }
+    }
+  }
+</script>
+<style>
+  .grid-paper {
+    background-image: linear-gradient(to right, rgba(10,10,10,0.06) 1px, transparent 1px),
+                       linear-gradient(to bottom, rgba(10,10,10,0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .stamp {
+    transform: rotate(-4deg);
+  }
+</style>
+</head>
+<body class="bg-paper text-ink font-sans">
+<!-- Nav -->
+<nav class="sticky top-0 z-50 bg-paper border-ink-b">
+  <div class="flex justify-between items-center px-6 md:px-10 py-4 max-w-[1440px] mx-auto">
+    <a href="landing.html" class="font-display text-2xl font-bold tracking-tight flex items-center gap-2">
+      <span class="w-3 h-3 bg-accent border-ink-thin inline-block"></span>
+      PROMPT<span class="text-accent">OPS</span>
+    </a>
+    <div class="hidden md:flex items-center gap-6">
+      <a class="font-mono text-sm font-bold uppercase hover:text-accent transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Docs</a>
+      <a href="#hero-cta" class="btn-brutal btn-brutal-accent px-5 py-2 font-mono text-sm uppercase">Get Started</a>
+    </div>
+    <button class="md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+  </div>
+  <div class="hidden md:hidden border-ink-t bg-paper px-6 py-4 flex flex-col gap-4" id="mobile-menu">
+    <a class="font-mono text-sm font-bold uppercase" href="https://github.com/aanayagrawal0-dev/promptops">Docs</a>
+    <a href="#hero-cta" class="btn-brutal btn-brutal-accent px-5 py-2 font-mono text-sm uppercase text-center">Get Started</a>
+  </div>
+</nav>
+
+<main>
+  <!-- Hero -->
+  <section class="relative overflow-hidden grid-paper border-ink-b">
+    <div class="max-w-[1440px] mx-auto px-6 md:px-10 py-20 md:py-28 flex flex-col items-center text-center">
+      <div class="badge-brutal bg-good-light text-good-dark px-3 py-1.5 mb-8">
+        <span class="w-2 h-2 rounded-full bg-good animate-blink"></span>
+        SYSTEMS NOMINAL &middot; AUTO-HEAL ENABLED
+      </div>
+      <h1 class="font-display text-6xl md:text-8xl font-bold tracking-tighter leading-[0.95] mb-6">
+        PROMPTS BREAK.<br><span class="bg-accent text-white px-3 inline-block mt-2">WE FIX THEM.</span>
+      </h1>
+      <p class="font-sans text-lg md:text-xl max-w-2xl mx-auto mb-10 text-ink/80">
+        A shared template edit can silently break downstream prompts.
+        <span class="font-bold text-ink">PromptOps catches and auto-heals them</span> before they hit production.
+      </p>
+      <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+        <a class="btn-brutal btn-brutal-accent px-8 py-4 font-display font-bold text-lg flex items-center gap-2" id="hero-cta" href="onboarding.html">
+          <span class="material-symbols-outlined">terminal</span>
+          Open the console
+        </a>
+        <a class="btn-brutal px-8 py-4 font-display font-bold text-lg flex items-center gap-2" href="#how">
+          See how it works
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack Banner -->
+  <section class="py-6 bg-ink text-paper border-ink-b overflow-hidden">
+    <div class="flex items-center gap-10 animate-marquee whitespace-nowrap px-6">
+      <div class="flex items-center gap-10 shrink-0">
+        <span class="font-mono text-xs uppercase tracking-widest text-paper/50">Infrastructure:</span>
+        <div class="flex gap-3">
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">FastAPI</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Neo4j GraphDB</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Sarvam AI</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">PostgreSQL</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Redis Cache</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-10 shrink-0">
+        <span class="font-mono text-xs uppercase tracking-widest text-paper/50">Infrastructure:</span>
+        <div class="flex gap-3">
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">FastAPI</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Neo4j GraphDB</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Sarvam AI</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">PostgreSQL</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Redis Cache</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Workflow Section -->
+  <section class="py-24 px-6 md:px-10 max-w-[1440px] mx-auto" id="how">
+    <div class="mb-16 flex items-end justify-between flex-wrap gap-4">
+      <h2 class="font-display text-4xl md:text-5xl font-bold tracking-tight">Automated Prompt<br>Integrity</h2>
+      <span class="font-mono text-sm uppercase border-ink-thin px-3 py-1">03 Stages</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Step 1 -->
+      <div class="card-brutal shadow-brutal-bad p-8 flex flex-col">
+        <div class="flex justify-between items-start mb-6">
+          <span class="font-mono text-xs font-bold text-bad-dark">01_BREAKAGE</span>
+          <span class="badge-brutal bg-bad-light text-bad-dark px-2 py-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-bad animate-blink"></span>
+            CRITICAL_ERR
+          </span>
+        </div>
+        <h3 class="font-display text-xl font-bold mb-4">Edit breaks the shared piece</h3>
+        <p class="text-ink/70 mb-6 flex-1">Any modification to a shared prompt partial is tracked via our Neo4j dependency graph. We detect structural drift instantly.</p>
+        <div class="p-3 border-ink-thin font-mono text-sm bg-paper-alt overflow-x-auto">
+          <span class="text-ink/40"># prompt_v2.yaml</span><br>
+          <span class="text-bad-dark">- {system_context}</span><br>
+          <span class="text-good-dark">+ {context_v2}</span>
+        </div>
+      </div>
+      <!-- Step 2 -->
+      <div class="card-brutal shadow-brutal p-8 flex flex-col" style="box-shadow: 6px 6px 0 var(--warn);">
+        <div class="flex justify-between items-start mb-6">
+          <span class="font-mono text-xs font-bold text-warn-dark">02_VALIDATION</span>
+          <span class="badge-brutal bg-warn-light text-warn-dark px-2 py-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-warn animate-blink"></span>
+            COMPUTING
+          </span>
+        </div>
+        <h3 class="font-display text-xl font-bold mb-4">Every dependent is re-scored</h3>
+        <p class="text-ink/70 mb-6 flex-1">Async workers trigger headless re-evaluations for all 4,200 downstream prompts. Reliability scores are calculated in real-time.</p>
+        <div class="space-y-2">
+          <div class="h-3 w-full border-ink-thin overflow-hidden">
+            <div class="h-full bg-warn w-3/4"></div>
+          </div>
+          <div class="flex justify-between font-mono text-[10px]">
+            <span>PARALLEL_RESCAN</span>
+            <span>74% COMPLETE</span>
+          </div>
+        </div>
+      </div>
+      <!-- Step 3 -->
+      <div class="card-brutal shadow-brutal-good p-8 flex flex-col">
+        <div class="flex justify-between items-start mb-6">
+          <span class="font-mono text-xs font-bold text-good-dark">03_RESOLUTION</span>
+          <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-good animate-blink"></span>
+            RECOVERED
+          </span>
+        </div>
+        <h3 class="font-display text-xl font-bold mb-4">Below the floor, it heals</h3>
+        <p class="text-ink/70 mb-6 flex-1">If scores dip below your defined threshold, our LLM optimizer automatically rewrites the prompt to restore semantic alignment.</p>
+        <div class="flex items-center gap-3">
+          <div class="flex -space-x-1">
+            <div class="w-8 h-8 border-ink-thin bg-accent flex items-center justify-center"><span class="material-symbols-outlined text-[16px] text-white">bolt</span></div>
+            <div class="w-8 h-8 border-ink-thin bg-good flex items-center justify-center"><span class="material-symbols-outlined text-[16px] text-white">check</span></div>
+          </div>
+          <span class="font-mono text-xs font-bold text-good-dark">PATCH_APPLIED: 12ms</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Visual Proof Bento -->
+  <section class="py-24 bg-paper-alt border-ink-t border-ink-b px-6 md:px-10">
+    <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="md:col-span-2 md:row-span-2 card-brutal p-8 flex flex-col justify-between overflow-hidden">
+        <div class="space-y-4">
+          <div class="flex items-center gap-2 text-accent">
+            <span class="material-symbols-outlined">hub</span>
+            <span class="font-mono text-xs uppercase tracking-wider font-bold">RELATIONSHIP_ENGINE</span>
+          </div>
+          <h4 class="font-display text-2xl font-bold">Visualize Complexity</h4>
+          <p class="text-ink/70">Interactive maps of every prompt-to-model dependency in your fleet.</p>
+        </div>
+        <div class="mt-8 relative h-48 border-ink-thin bg-paper p-4 grid-paper">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-16 h-16 border-ink-thin rounded-full flex items-center justify-center">
+              <div class="w-8 h-8 rounded-full bg-accent/20 animate-ping"></div>
+            </div>
+            <div class="absolute top-10 left-10 w-4 h-4 border-ink-thin bg-warn"></div>
+            <div class="absolute bottom-10 right-20 w-4 h-4 border-ink-thin bg-good"></div>
+          </div>
+        </div>
+      </div>
+      <div class="md:col-span-2 card-brutal p-8 flex items-center gap-8">
+        <div class="flex-1 space-y-2">
+          <span class="font-mono text-[10px] uppercase font-bold text-ink/60">DETERMINISTIC_EVALUATION</span>
+          <h4 class="font-display text-xl font-bold">Rule-based scoring</h4>
+          <p class="text-ink/70">No LLM-as-judge variance.</p>
+        </div>
+        <div class="text-accent font-display text-5xl font-bold">100%</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Footer -->
+  <section class="py-24 px-6 text-center">
+    <div class="max-w-2xl mx-auto card-brutal shadow-brutal-accent p-12 relative">
+      <span class="stamp absolute -top-6 -right-6 badge-brutal bg-ink text-paper px-3 py-2 hidden md:inline-flex">HACKHAZARDS '26</span>
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">Ready to automate<br>your prompt ops?</h2>
+      <p class="text-ink/70 mb-8 text-lg">Built for HACKHAZARDS '26</p>
+      <div class="flex flex-col md:flex-row gap-4 justify-center">
+        <a href="onboarding.html" class="btn-brutal btn-brutal-accent px-8 py-3 font-display font-bold">Open the console</a>
+        <a href="https://github.com/aanayagrawal0-dev/promptops" class="btn-brutal px-8 py-3 font-display font-bold">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="border-ink-t py-12 bg-ink text-paper">
+  <div class="flex flex-col md:flex-row justify-between items-center px-6 md:px-10 gap-6 max-w-[1440px] mx-auto">
+    <div class="flex flex-col items-center md:items-start gap-2">
+      <span class="font-display text-xl font-bold">PROMPTOPS</span>
+      <p class="font-mono text-xs text-paper/60">&copy; 2026 PromptOps. Built for HACKHAZARDS '26.</p>
+    </div>
+    <div class="flex items-center gap-8">
+      <a class="font-mono text-sm text-paper/70 hover:text-accent transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Github</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

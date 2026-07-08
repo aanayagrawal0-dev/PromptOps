@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Regressions | PromptOps</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="assets/brutalist.css" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: "#0a0a0a", paper: "#ffffff", "paper-alt": "#f2f1ec", "paper-dim": "#e4e2d8",
+          accent: "#3d5afe", "accent-dark": "#0031ca", "accent-light": "#e8eaff",
+          good: "#00c853", "good-dark": "#007a3d", "good-light": "#dcffea",
+          warn: "#ffab00", "warn-dark": "#a66900", "warn-light": "#fff3d6",
+          bad: "#ff1744", "bad-dark": "#a4001e", "bad-light": "#ffdde3"
+        },
+        fontFamily: { display: ["Space Grotesk", "sans-serif"], mono: ["JetBrains Mono", "monospace"], sans: ["Inter", "sans-serif"] },
+        borderRadius: { none: "0px", DEFAULT: "0px", sm: "0px", md: "2px", lg: "2px", xl: "2px", full: "9999px" }
+      }
+    }
+  }
+</script>
+<style>
+  .active-nav-item { background: var(--ink); color: var(--paper); }
+  .nav-item:hover:not(.active-nav-item) { background: var(--paper-dim); }
+</style>
+</head>
+<body class="bg-paper text-ink font-sans flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-paper border-ink-b flex justify-between items-center px-6 md:px-10 h-16 w-full sticky top-0 z-50">
+  <div class="flex items-center gap-3">
+    <a href="landing.html" class="font-display text-xl font-bold tracking-tight flex items-center gap-2">
+      <span class="w-3 h-3 bg-accent border-ink-thin inline-block"></span>
+      PROMPT<span class="text-accent">OPS</span>
+    </a>
+    <nav class="hidden md:flex gap-2 ml-8">
+      <a class="font-mono text-xs uppercase font-bold px-3 py-2 hover:bg-paper-dim transition-colors" href="console.html">Console</a>
+      <a class="font-mono text-xs uppercase font-bold px-3 py-2 hover:bg-paper-dim transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Docs</a>
+    </nav>
+  </div>
+  <div class="flex items-center gap-3">
+    <span class="material-symbols-outlined cursor-pointer p-1 hover:text-accent transition-colors">settings</span>
+    <span class="material-symbols-outlined cursor-pointer p-1 hover:text-accent transition-colors">account_circle</span>
+  </div>
+</header>
+
+<div class="flex flex-1 overflow-hidden">
+  <!-- Vertical Sidebar -->
+  <aside class="w-64 border-ink-r hidden md:flex flex-col py-6 shrink-0 bg-paper">
+    <div class="px-6 mb-8">
+      <a href="new-template.html" class="btn-brutal btn-brutal-accent w-full py-2.5 px-4 flex items-center justify-center gap-2 font-mono text-xs uppercase font-bold">
+        <span class="material-symbols-outlined text-[18px]">add</span>
+        Register New Template
+      </a>
+    </div>
+    <nav class="flex flex-col gap-1 px-3">
+      <div class="px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-ink/40 mb-1">Navigation</div>
+      <a class="nav-item px-3 py-2 flex items-center gap-2 transition-colors" href="console.html">
+        <span class="material-symbols-outlined text-[18px]">terminal</span>
+        <span class="text-sm">All Prompts</span>
+      </a>
+      <a class="nav-item active-nav-item px-3 py-2 flex items-center gap-2 font-bold" href="regressions.html">
+        <span class="material-symbols-outlined text-[18px]">analytics</span>
+        <span class="text-sm">Regressions</span>
+      </a>
+      <div class="mt-6 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-ink/40 mb-1">Systems</div>
+      <a class="nav-item px-3 py-2 flex items-center gap-2 transition-colors" href="dashboard.html">
+        <span class="material-symbols-outlined text-[18px]">hub</span>
+        <span class="text-sm">Dependencies</span>
+      </a>
+      <a class="nav-item px-3 py-2 flex items-center gap-2 transition-colors" href="onboarding.html">
+        <span class="material-symbols-outlined text-[18px]">settings_input_component</span>
+        <span class="text-sm">Initialize Fleet</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto p-6 md:p-10 bg-paper-alt">
+    <div class="max-w-6xl mx-auto">
+      <header class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 class="font-display text-3xl font-bold mb-1">Regressions</h1>
+          <p class="text-ink/70">Every score drop PromptOps has caught, and what it did about it.</p>
+        </div>
+        <a href="dashboard.html" class="btn-brutal px-4 py-2 font-mono text-xs uppercase font-bold flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">hub</span>
+          Open Live Graph
+        </a>
+      </header>
+
+      <!-- Summary Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="card-brutal p-4">
+          <div class="font-mono text-[10px] uppercase text-ink/50">Detected (7d)</div>
+          <div class="font-mono text-2xl font-bold">5</div>
+        </div>
+        <div class="card-brutal p-4">
+          <div class="font-mono text-[10px] uppercase text-ink/50">Auto-Healed</div>
+          <div class="font-mono text-2xl font-bold text-good-dark">3</div>
+        </div>
+        <div class="card-brutal p-4">
+          <div class="font-mono text-[10px] uppercase text-ink/50">Flagged for Review</div>
+          <div class="font-mono text-2xl font-bold text-warn-dark">1</div>
+        </div>
+        <div class="card-brutal p-4">
+          <div class="font-mono text-[10px] uppercase text-ink/50">Avg. Recovery Time</div>
+          <div class="font-mono text-2xl font-bold text-accent">700ms</div>
+        </div>
+      </div>
+
+      <!-- Regression History Table -->
+      <div class="card-brutal overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-ink text-paper">
+              <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider">Timestamp</th>
+              <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider">Template</th>
+              <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider">Trigger</th>
+              <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider text-center">Score &Delta;</th>
+              <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider">Resolution</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm">
+            <tr class="border-ink-b hover:bg-accent-light transition-colors">
+              <td class="py-4 px-4 font-mono text-ink/70">2026-07-08 14:32:11</td>
+              <td class="py-4 px-4 font-mono font-bold">stock_advisor</td>
+              <td class="py-4 px-4 text-ink/70">compliance_disclaimer edit</td>
+              <td class="py-4 px-4 text-center font-mono"><span class="text-bad-dark font-bold">1.00 &rarr; 0.52</span></td>
+              <td class="py-4 px-4">
+                <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
+                  Auto-rolled back to v1
+                </span>
+              </td>
+            </tr>
+            <tr class="border-ink-b hover:bg-accent-light transition-colors">
+              <td class="py-4 px-4 font-mono text-ink/70">2026-07-08 14:32:11</td>
+              <td class="py-4 px-4 font-mono font-bold">fund_summary</td>
+              <td class="py-4 px-4 text-ink/70">compliance_disclaimer edit</td>
+              <td class="py-4 px-4 text-center font-mono"><span class="text-bad-dark font-bold">1.00 &rarr; 0.48</span></td>
+              <td class="py-4 px-4">
+                <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
+                  Auto-rolled back to v1
+                </span>
+              </td>
+            </tr>
+            <tr class="border-ink-b hover:bg-accent-light transition-colors">
+              <td class="py-4 px-4 font-mono text-ink/70">2026-07-08 14:32:12</td>
+              <td class="py-4 px-4 font-mono font-bold">sip_explainer</td>
+              <td class="py-4 px-4 text-ink/70">compliance_disclaimer edit</td>
+              <td class="py-4 px-4 text-center font-mono"><span class="text-bad-dark font-bold">1.00 &rarr; 0.55</span></td>
+              <td class="py-4 px-4">
+                <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
+                  Auto-rolled back to v1
+                </span>
+              </td>
+            </tr>
+            <tr class="border-ink-b hover:bg-accent-light transition-colors">
+              <td class="py-4 px-4 font-mono text-ink/70">2026-07-08 14:32:12</td>
+              <td class="py-4 px-4 font-mono font-bold">market_news</td>
+              <td class="py-4 px-4 text-ink/70">compliance_disclaimer edit</td>
+              <td class="py-4 px-4 text-center font-mono"><span class="text-warn-dark font-bold">1.00 &rarr; 0.85</span></td>
+              <td class="py-4 px-4">
+                <span class="badge-brutal bg-warn-light text-warn-dark px-2 py-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-warn"></span>
+                  Flagged for human review
+                </span>
+              </td>
+            </tr>
+            <tr class="hover:bg-accent-light transition-colors">
+              <td class="py-4 px-4 font-mono text-ink/70">2026-07-07 09:14:03</td>
+              <td class="py-4 px-4 font-mono font-bold">greeting_bot</td>
+              <td class="py-4 px-4 text-ink/70">tone_adjustment edit</td>
+              <td class="py-4 px-4 text-center font-mono"><span class="text-ink/60 font-bold">1.00 &rarr; 0.91</span></td>
+              <td class="py-4 px-4">
+                <span class="badge-brutal bg-paper-dim text-ink/70 px-2 py-1">
+                  Acknowledged, no action
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="p-4 flex justify-between items-center bg-paper-alt border-ink-t">
+          <span class="font-mono text-[11px] text-ink/50">Showing 5 of 5 regression events</span>
+          <div class="flex gap-2">
+            <button class="px-3 py-1 border-ink-thin font-mono text-[11px] opacity-40 cursor-not-allowed" disabled="">Prev</button>
+            <button class="px-3 py-1 border-ink-thin font-mono text-[11px] opacity-40 cursor-not-allowed" disabled="">Next</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="mt-4 text-xs text-ink/50 font-mono">This log mirrors the live simulation on the <a href="dashboard.html" class="text-accent hover:underline">Dependency Graph</a> page — apply a breaking edit there to generate a new event.</p>
+    </div>
+  </main>
+</div>
+
+<!-- Footer -->
+<footer class="bg-ink text-paper border-ink-t flex flex-col md:flex-row justify-between items-center py-6 px-6 md:px-10 w-full">
+  <div class="flex flex-col items-center md:items-start gap-1">
+    <span class="font-mono text-[11px] uppercase tracking-widest text-paper/60">PromptOps Technical Systems</span>
+    <span class="text-sm text-paper/80">Built for HACKHAZARDS '26</span>
+  </div>
+  <div class="flex gap-6 mt-4 md:mt-0">
+    <a class="text-sm text-paper/70 hover:text-accent transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Github</a>
+  </div>
+</footer>
+</body>
+</html>
