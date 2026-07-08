@@ -1,393 +1,242 @@
-<!DOCTYPE html><html class="light" lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
 <title>PromptOps | High-Performance Prompt Workflows</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<style>
-        @keyframes grid-scroll {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(40px); }
-        }
-
-        .retro-grid {
-            mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
-            perspective: 600px;
-        }
-
-        .grid-lines {
-            background-image: 
-                linear-gradient(to right, rgba(111, 139, 176, 0.25) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(111, 139, 176, 0.25) 1px, transparent 1px);
-            background-size: 40px 40px;
-            animation: grid-scroll 2s linear infinite;
-        }
-
-        @keyframes health-cycle {
-            0%, 100% { color: #ba1a1a; text-shadow: 0 0 15px rgba(186, 26, 26, 0.2); }
-            33% { color: #9a6b00; text-shadow: 0 0 15px rgba(154, 107, 0, 0.2); }
-            66% { color: #008746; text-shadow: 0 0 15px rgba(0, 135, 70, 0.2); }
-        }
-
-        .animate-health {
-            animation: health-cycle 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-
-        .scanline {
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.05) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.01));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .grid-lines, .animate-health {
-                animation: none !important;
-            }
-        }
-
-        .glow-border-red { border: 1px solid rgba(186, 26, 26, 0.2); box-shadow: inset 0 0 10px rgba(186, 26, 26, 0.05); }
-        .glow-border-amber { border: 1px solid rgba(154, 107, 0, 0.2); box-shadow: inset 0 0 10px rgba(154, 107, 0, 0.05); }
-        .glow-border-green { border: 1px solid rgba(0, 135, 70, 0.2); box-shadow: inset 0 0 10px rgba(0, 135, 70, 0.05); }
-    </style>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="assets/brutalist.css" rel="stylesheet">
 <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "on-primary-container": "#c4dcfc",
-                    "on-surface-variant": "#43474d",
-                    "on-tertiary": "#ffffff",
-                    "on-tertiary-fixed": "#131b2e",
-                    "tertiary": "#40475d",
-                    "surface-tint": "#49607b",
-                    "surface-container": "#eceef0",
-                    "outline-variant": "#c3c6ce",
-                    "secondary-fixed-dim": "#acc9f0",
-                    "secondary-fixed": "#d2e4ff",
-                    "surface-variant": "#e0e3e5",
-                    "surface-bright": "#f7f9fb",
-                    "primary": "#324963",
-                    "inverse-primary": "#b1c9e8",
-                    "outline": "#74777e",
-                    "surface": "#f8fafc",
-                    "on-error": "#ffffff",
-                    "inverse-on-surface": "#eff1f3",
-                    "surface-container-highest": "#e0e3e5",
-                    "secondary": "#446083",
-                    "error-container": "#ffdad6",
-                    "on-secondary-fixed-variant": "#2c486a",
-                    "surface-container-low": "#f2f4f6",
-                    "surface-dim": "#d8dadc",
-                    "on-secondary-fixed": "#001c37",
-                    "on-secondary-container": "#415d80",
-                    "on-primary": "#ffffff",
-                    "inverse-surface": "#2d3133",
-                    "on-secondary": "#ffffff",
-                    "surface-container-lowest": "#ffffff",
-                    "on-tertiary-container": "#d2d9f4",
-                    "primary-fixed": "#d1e4ff",
-                    "on-primary-fixed-variant": "#314862",
-                    "on-tertiary-fixed-variant": "#3f465c",
-                    "on-error-container": "#93000a",
-                    "tertiary-fixed": "#dae2fd",
-                    "on-background": "#191c1e",
-                    "secondary-container": "#bad7ff",
-                    "surface-container-high": "#e6e8ea",
-                    "primary-container": "#4a617c",
-                    "primary-fixed-dim": "#b1c9e8",
-                    "on-surface": "#191c1e",
-                    "tertiary-fixed-dim": "#bec6e0",
-                    "tertiary-container": "#575f75",
-                    "background": "#f8fafc",
-                    "error": "#ba1a1a",
-                    "on-primary-fixed": "#011d35"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.125rem",
-                    "lg": "0.25rem",
-                    "xl": "0.5rem",
-                    "full": "0.75rem"
-            },
-            "spacing": {
-                    "md": "16px",
-                    "margin-desktop": "32px",
-                    "margin-mobile": "16px",
-                    "xl": "48px",
-                    "gutter": "16px",
-                    "sm": "8px",
-                    "base": "4px",
-                    "lg": "24px",
-                    "xs": "4px",
-                    "max-width": "1440px"
-            },
-            "fontFamily": {
-                    "code": ["JetBrains Mono"],
-                    "headline-sm": ["JetBrains Mono"],
-                    "label-md": ["JetBrains Mono"],
-                    "body-sm": ["Inter"],
-                    "label-sm": ["JetBrains Mono"],
-                    "body-lg": ["Inter"],
-                    "headline-lg": ["JetBrains Mono"],
-                    "headline-md": ["JetBrains Mono"],
-                    "body-md": ["Inter"],
-                    "display-lg": ["JetBrains Mono"]
-            },
-            "fontSize": {
-                    "code": ["13px", {"lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400"}],
-                    "headline-sm": ["18px", {"lineHeight": "1.4", "letterSpacing": "0em", "fontWeight": "500"}],
-                    "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
-                    "body-sm": ["12px", {"lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400"}],
-                    "label-sm": ["10px", {"lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "500"}],
-                    "body-lg": ["16px", {"lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400"}],
-                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
-                    "headline-md": ["24px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                    "body-md": ["14px", {"lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400"}],
-                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}]
-            }
-          },
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: "#0a0a0a", paper: "#ffffff", "paper-alt": "#f2f1ec", "paper-dim": "#e4e2d8",
+          accent: "#3d5afe", "accent-dark": "#0031ca", "accent-light": "#e8eaff",
+          good: "#00c853", "good-dark": "#007a3d", "good-light": "#dcffea",
+          warn: "#ffab00", "warn-dark": "#a66900", "warn-light": "#fff3d6",
+          bad: "#ff1744", "bad-dark": "#a4001e", "bad-light": "#ffdde3"
         },
+        fontFamily: { display: ["Space Grotesk", "sans-serif"], mono: ["JetBrains Mono", "monospace"], sans: ["Inter", "sans-serif"] },
+        borderRadius: { none: "0px", DEFAULT: "0px", sm: "0px", md: "2px", lg: "2px", xl: "2px", full: "9999px" }
       }
-    </script>
+    }
+  }
+</script>
 <style>
-            @keyframes infinite-scroll {
-                from { transform: translateX(0); }
-                to { transform: translateX(-50%); }
-            }
-            .animate-infinite-scroll {
-                animation: infinite-scroll 30s linear infinite;
-            }
-            @keyframes shimmer {
-                0% { background-position: -200% 0; }
-                100% { background-position: 200% 0; }
-            }
-        </style></head>
-<body class="bg-background text-on-background font-body-md selection:bg-primary/20">
-<!-- TopNavBar -->
-<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant/30">
-<div class="flex justify-between items-center px-margin-desktop py-4 max-w-max-width mx-auto">
-<div class="flex items-center gap-gutter">
-<span class="font-display-lg text-headline-md tracking-tighter text-primary">PromptOps</span>
-</div>
-<div class="hidden md:flex items-center gap-8">
-<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-md transition-all duration-300" href="https://github.com/aanayagrawal0-dev/promptops">Docs</a>
+  .grid-paper {
+    background-image: linear-gradient(to right, rgba(10,10,10,0.06) 1px, transparent 1px),
+                       linear-gradient(to bottom, rgba(10,10,10,0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .stamp {
+    transform: rotate(-4deg);
+  }
+</style>
+</head>
+<body class="bg-paper text-ink font-sans">
+<!-- Nav -->
+<nav class="sticky top-0 z-50 bg-paper border-ink-b">
+  <div class="flex justify-between items-center px-6 md:px-10 py-4 max-w-[1440px] mx-auto">
+    <a href="landing.html" class="font-display text-2xl font-bold tracking-tight flex items-center gap-2">
+      <span class="w-3 h-3 bg-accent border-ink-thin inline-block"></span>
+      PROMPT<span class="text-accent">OPS</span>
+    </a>
+    <div class="hidden md:flex items-center gap-6">
+      <a class="font-mono text-sm font-bold uppercase hover:text-accent transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Docs</a>
+      <a href="#hero-cta" class="btn-brutal btn-brutal-accent px-5 py-2 font-mono text-sm uppercase">Get Started</a>
+    </div>
+    <button class="md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+  </div>
+  <div class="hidden md:hidden border-ink-t bg-paper px-6 py-4 flex flex-col gap-4" id="mobile-menu">
+    <a class="font-mono text-sm font-bold uppercase" href="https://github.com/aanayagrawal0-dev/promptops">Docs</a>
+    <a href="#hero-cta" class="btn-brutal btn-brutal-accent px-5 py-2 font-mono text-sm uppercase text-center">Get Started</a>
+  </div>
+</nav>
 
+<main>
+  <!-- Hero -->
+  <section class="relative overflow-hidden grid-paper border-ink-b">
+    <div class="max-w-[1440px] mx-auto px-6 md:px-10 py-20 md:py-28 flex flex-col items-center text-center">
+      <div class="badge-brutal bg-good-light text-good-dark px-3 py-1.5 mb-8">
+        <span class="w-2 h-2 rounded-full bg-good animate-blink"></span>
+        SYSTEMS NOMINAL &middot; AUTO-HEAL ENABLED
+      </div>
+      <h1 class="font-display text-6xl md:text-8xl font-bold tracking-tighter leading-[0.95] mb-6">
+        PROMPTS BREAK.<br><span class="bg-accent text-white px-3 inline-block mt-2">WE FIX THEM.</span>
+      </h1>
+      <p class="font-sans text-lg md:text-xl max-w-2xl mx-auto mb-10 text-ink/80">
+        A shared template edit can silently break downstream prompts.
+        <span class="font-bold text-ink">PromptOps catches and auto-heals them</span> before they hit production.
+      </p>
+      <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+        <a class="btn-brutal btn-brutal-accent px-8 py-4 font-display font-bold text-lg flex items-center gap-2" id="hero-cta" href="onboarding.html">
+          <span class="material-symbols-outlined">terminal</span>
+          Open the console
+        </a>
+        <a class="btn-brutal px-8 py-4 font-display font-bold text-lg flex items-center gap-2" href="#how">
+          See how it works
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+  </section>
 
-<a href="#hero-cta" class="bg-primary text-on-primary px-6 py-2 rounded font-body-md font-bold active:scale-95 duration-100 shadow-sm inline-flex items-center justify-center">Get Started</a>
-</div>
-<!-- Mobile Menu Trigger -->
-<button class="md:hidden text-primary" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
-<span class="material-symbols-outlined">menu</span>
-</button>
-</div>
-<div id="mobile-menu" class="hidden md:hidden bg-white border-t border-outline-variant/30 px-margin-mobile py-4 flex flex-col gap-4"><a class="text-primary font-bold font-body-md" href="https://github.com/aanayagrawal0-dev/promptops">Docs</a><a href="#hero-cta" class="bg-primary text-on-primary px-6 py-2 rounded font-body-md font-bold text-center">Get Started</a></div></nav>
-<main class="pt-20">
-<!-- Hero Section -->
-<section class="relative flex h-[500px] w-full flex-col items-center justify-center overflow-hidden bg-background px-margin-mobile">
-<!-- RetroGrid Background -->
-<div class="absolute inset-0 pointer-events-none z-0 retro-grid opacity-50">
-<div class="absolute inset-0 grid-lines" style="transform: rotateX(60deg) translateY(-20%); transform-origin: top;"></div>
-<div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-background to-transparent"></div>
-</div>
-<!-- Content -->
-<div class="relative z-10 flex flex-col items-center justify-center text-center max-w-4xl mx-auto space-y-6">
-<div class="inline-flex items-center gap-2 px-3 py-1 rounded border border-outline-variant/40 bg-surface-container-low/80 backdrop-blur-sm">
-<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
-<span class="font-code text-label-md text-on-secondary-fixed-variant">SYSTEMS NOMINAL: AUTO-HEAL ENABLED</span>
-</div>
-<h1 class="font-display-lg text-7xl md:text-9xl font-bold tracking-tighter animate-health pointer-events-none whitespace-pre-wrap bg-clip-text">
-                    PromptOps
-                </h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-                    A shared template edit can silently break downstream prompts; <span class="text-on-surface font-semibold">PromptOps catches and auto-heals them</span> before they hit production.
-                </p>
-<div class="flex flex-col md:flex-row gap-4 justify-center items-center mt-4">
-<a class="bg-primary text-on-primary px-8 py-4 rounded-lg font-headline-sm flex items-center gap-2 hover:shadow-lg transition-all" id="hero-cta" href="onboarding.html">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">terminal</span>
-                        Open the console
-                    </a>
-<a class="border border-outline-variant bg-white text-on-surface px-8 py-4 rounded-lg font-headline-sm hover:bg-surface-variant/20 transition-all flex items-center gap-2" href="#how">
-                        See how it works
-                        <span class="material-symbols-outlined">arrow_forward</span>
-</a>
-</div>
-</div>
-</section>
-<!-- Tech Stack Banner -->
-<section class="py-12 bg-white border-y border-outline-variant/30 overflow-hidden">
-<div class="flex items-center gap-12 animate-infinite-scroll whitespace-nowrap px-margin-desktop">
-<div class="flex items-center gap-12 shrink-0">
-<span class="font-label-md text-on-surface-variant uppercase tracking-widest opacity-60">Infrastructure:</span>
-<div class="flex gap-4">
-<span class="px-3 py-1 rounded border border-outline-variant/40 font-code text-body-sm bg-surface-container-low text-primary">FastAPI</span>
-<span class="px-3 py-1 rounded border border-outline-variant/40 font-code text-body-sm bg-surface-container-low text-primary">Neo4j GraphDB</span>
-<span class="px-3 py-1 rounded border border-outline-variant/40 font-code text-body-sm bg-surface-container-low text-primary">Sarvam AI</span>
-<span class="px-3 py-1 rounded border border-outline-variant/40 font-code text-body-sm bg-surface-container-low text-primary">PostgreSQL</span>
-<span class="px-3 py-1 rounded border border-outline-variant/40 font-code text-body-sm bg-surface-container-low text-primary">Redis Cache</span>
-</div>
-</div>
-<!-- Duplicate for seamless scroll -->
-<div class="flex items-center gap-12 shrink-0">
-<span class="font-label-md text-on-surface-variant uppercase tracking-widest opacity-60">Infrastructure:</span>
-<div class="flex gap-4">
-<span class="px-3 py-1 rounded border border-outline-variant/40 font-code text-body-sm bg-surface-container-low text-primary">FastAPI</span>
-<span class="px-3 py-1 rounded border border-outline-variant/40 font-code text-body-sm bg-surface-container-low text-primary">Neo4j GraphDB</span>
-<span class="px-3 py-1 rounded border border-outline-variant/40 font-code text-body-sm bg-surface-container-low text-primary">Sarvam AI</span>
-<span class="px-3 py-1 rounded border border-outline-variant/40 font-code text-body-sm bg-surface-container-low text-primary">PostgreSQL</span>
-<span class="px-3 py-1 rounded border border-outline-variant/40 font-code text-body-sm bg-surface-container-low text-primary">Redis Cache</span>
-</div>
-</div>
-</div>
-</section>
-<!-- Workflow Section -->
-<section class="py-24 px-margin-desktop max-w-max-width mx-auto" id="how">
-<div class="mb-16">
-<h2 class="font-headline-md text-headline-md mb-2 text-on-surface">Automated Prompt Integrity</h2>
-<div class="h-1 w-24 bg-primary rounded-full"></div>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-<!-- Step 1 -->
-<div class="relative group p-8 rounded-lg bg-white border border-outline-variant/40 glow-border-red hover:border-error/40 transition-all">
-<div class="scanline absolute inset-0 opacity-10 rounded-lg"></div>
-<div class="relative z-10">
-<div class="flex justify-between items-start mb-6">
-<span class="font-code text-label-md text-error">01_BREAKAGE</span>
-<span class="flex items-center gap-1 px-2 py-0.5 rounded border border-error/40 bg-error-container/20 font-label-sm text-error">
-<span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
-                                CRITICAL_ERR
-                            </span>
-</div>
-<h3 class="font-headline-sm text-headline-sm mb-4 text-on-surface">Edit breaks the shared piece</h3>
-<p class="text-on-surface-variant font-body-md mb-6">
-                            Any modification to a shared prompt partial is tracked via our Neo4j dependency graph. We detect structural drift instantly.
-                        </p>
-<div class="p-3 rounded bg-surface-container-low font-code text-body-sm border border-outline-variant/30 overflow-x-auto text-on-surface-variant">
-<span class="text-outline"># prompt_v2.yaml</span><br>
-<span class="text-error">- {system_context}</span><br>
-<span class="text-[#008746]">+ {context_v2}</span>
-</div>
-</div>
-</div>
-<!-- Step 2 -->
-<div class="relative group p-8 rounded-lg bg-white border border-outline-variant/40 glow-border-amber hover:border-[#9a6b00]/40 transition-all">
-<div class="scanline absolute inset-0 opacity-10 rounded-lg"></div>
-<div class="relative z-10">
-<div class="flex justify-between items-start mb-6">
-<span class="font-code text-label-md text-[#9a6b00]">02_VALIDATION</span>
-<span class="flex items-center gap-1 px-2 py-0.5 rounded border border-[#9a6b00]/40 bg-[#9a6b00]/5 font-label-sm text-[#9a6b00]">
-<span class="w-1.5 h-1.5 rounded-full bg-[#9a6b00] animate-pulse"></span>
-                                COMPUTING
-                            </span>
-</div>
-<h3 class="font-headline-sm text-headline-sm mb-4 text-on-surface">Every dependent is re-scored</h3>
-<p class="text-on-surface-variant font-body-md mb-6">
-                            Async workers trigger headless re-evaluations for all 4,200 downstream prompts. Reliability scores are calculated in real-time.
-                        </p>
-<div class="space-y-2">
-<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full bg-[#9a6b00] w-3/4 animate-[shimmer_2s_infinite]"></div>
-</div>
-<div class="flex justify-between font-code text-[10px] text-on-surface-variant">
-<span class="">PARALLEL_RESCAN</span>
-<span class="">74% COMPLETE</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Step 3 -->
-<div class="relative group p-8 rounded-lg bg-white border border-outline-variant/40 glow-border-green hover:border-[#008746]/40 transition-all">
-<div class="scanline absolute inset-0 opacity-10 rounded-lg"></div>
-<div class="relative z-10">
-<div class="flex justify-between items-start mb-6">
-<span class="font-code text-label-md text-[#008746]">03_RESOLUTION</span>
-<span class="flex items-center gap-1 px-2 py-0.5 rounded border border-[#008746]/40 bg-[#008746]/5 font-label-sm text-[#008746]">
-<span class="w-1.5 h-1.5 rounded-full bg-[#008746] animate-pulse"></span>
-                                RECOVERED
-                            </span>
-</div>
-<h3 class="font-headline-sm text-headline-sm mb-4 text-on-surface">Below the floor, it heals</h3>
-<p class="text-on-surface-variant font-body-md mb-6">
-                            If scores dip below your defined threshold, our LLM optimizer automatically rewrites the prompt to restore semantic alignment.
-                        </p>
-<div class="flex items-center gap-3">
-<div class="flex -space-x-2">
-<div class="w-8 h-8 rounded-full border-2 border-white bg-primary-container flex items-center justify-center">
-<span class="material-symbols-outlined text-[16px] text-white">bolt</span>
-</div>
-<div class="w-8 h-8 rounded-full border-2 border-white bg-[#008746] flex items-center justify-center">
-<span class="material-symbols-outlined text-[16px] text-white">check</span>
-</div>
-</div>
-<span class="font-code text-label-md text-[#008746]">PATCH_APPLIED: 12ms</span>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Visual Proof Bento -->
-<section class="py-24 bg-surface-container-low/50 border-t border-outline-variant/30 px-margin-desktop">
-<div class="max-w-max-width mx-auto grid grid-cols-1 md:grid-cols-4 gap-gutter">
-<div class="md:col-span-2 md:row-span-2 rounded-xl bg-white border border-outline-variant/40 p-8 flex flex-col justify-between group overflow-hidden shadow-sm">
-<div class="space-y-4">
-<div class="flex items-center gap-2 text-primary">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">hub</span>
-<span class="font-code text-label-md uppercase tracking-wider">RELATIONSHIP_ENGINE</span>
-</div>
-<h4 class="font-headline-md text-headline-md text-on-surface">Visualize Complexity</h4>
-<p class="text-on-surface-variant font-body-md">Interactive maps of every prompt-to-model dependency in your fleet.</p>
-</div>
-<div class="mt-8 relative h-48 rounded bg-surface-container-low border border-outline-variant/30 p-4">
-<div class="absolute inset-0 flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity">
-<div class="w-16 h-16 rounded-full border border-primary/20 flex items-center justify-center">
-<div class="w-8 h-8 rounded-full bg-primary/10 animate-ping"></div>
-</div>
-<div class="absolute top-10 left-10 w-4 h-4 rounded-full bg-secondary/60"></div>
-<div class="absolute bottom-10 right-20 w-4 h-4 rounded-full bg-tertiary/60"></div>
-</div>
-</div>
-</div>
-<div class="md:col-span-2 rounded-xl bg-white border border-outline-variant/40 p-8 flex items-center gap-8 shadow-sm"><div class="flex-1 space-y-2"><span class="font-code text-label-sm text-on-surface-variant">DETERMINISTIC_EVALUATION</span><h4 class="font-headline-sm text-on-surface">Rule-based scoring</h4><p class="text-on-surface-variant text-body-md">No LLM-as-judge variance.</p></div><div class="text-primary font-display-lg text-4xl">100%</div></div>
+  <!-- Tech Stack Banner -->
+  <section class="py-6 bg-ink text-paper border-ink-b overflow-hidden">
+    <div class="flex items-center gap-10 animate-marquee whitespace-nowrap px-6">
+      <div class="flex items-center gap-10 shrink-0">
+        <span class="font-mono text-xs uppercase tracking-widest text-paper/50">Infrastructure:</span>
+        <div class="flex gap-3">
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">FastAPI</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Neo4j GraphDB</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Sarvam AI</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">PostgreSQL</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Redis Cache</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-10 shrink-0">
+        <span class="font-mono text-xs uppercase tracking-widest text-paper/50">Infrastructure:</span>
+        <div class="flex gap-3">
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">FastAPI</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Neo4j GraphDB</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Sarvam AI</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">PostgreSQL</span>
+          <span class="px-3 py-1 border-2 border-paper/30 font-mono text-sm">Redis Cache</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- Workflow Section -->
+  <section class="py-24 px-6 md:px-10 max-w-[1440px] mx-auto" id="how">
+    <div class="mb-16 flex items-end justify-between flex-wrap gap-4">
+      <h2 class="font-display text-4xl md:text-5xl font-bold tracking-tight">Automated Prompt<br>Integrity</h2>
+      <span class="font-mono text-sm uppercase border-ink-thin px-3 py-1">03 Stages</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Step 1 -->
+      <div class="card-brutal shadow-brutal-bad p-8 flex flex-col">
+        <div class="flex justify-between items-start mb-6">
+          <span class="font-mono text-xs font-bold text-bad-dark">01_BREAKAGE</span>
+          <span class="badge-brutal bg-bad-light text-bad-dark px-2 py-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-bad animate-blink"></span>
+            CRITICAL_ERR
+          </span>
+        </div>
+        <h3 class="font-display text-xl font-bold mb-4">Edit breaks the shared piece</h3>
+        <p class="text-ink/70 mb-6 flex-1">Any modification to a shared prompt partial is tracked via our Neo4j dependency graph. We detect structural drift instantly.</p>
+        <div class="p-3 border-ink-thin font-mono text-sm bg-paper-alt overflow-x-auto">
+          <span class="text-ink/40"># prompt_v2.yaml</span><br>
+          <span class="text-bad-dark">- {system_context}</span><br>
+          <span class="text-good-dark">+ {context_v2}</span>
+        </div>
+      </div>
+      <!-- Step 2 -->
+      <div class="card-brutal shadow-brutal p-8 flex flex-col" style="box-shadow: 6px 6px 0 var(--warn);">
+        <div class="flex justify-between items-start mb-6">
+          <span class="font-mono text-xs font-bold text-warn-dark">02_VALIDATION</span>
+          <span class="badge-brutal bg-warn-light text-warn-dark px-2 py-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-warn animate-blink"></span>
+            COMPUTING
+          </span>
+        </div>
+        <h3 class="font-display text-xl font-bold mb-4">Every dependent is re-scored</h3>
+        <p class="text-ink/70 mb-6 flex-1">Async workers trigger headless re-evaluations for all 4,200 downstream prompts. Reliability scores are calculated in real-time.</p>
+        <div class="space-y-2">
+          <div class="h-3 w-full border-ink-thin overflow-hidden">
+            <div class="h-full bg-warn w-3/4"></div>
+          </div>
+          <div class="flex justify-between font-mono text-[10px]">
+            <span>PARALLEL_RESCAN</span>
+            <span>74% COMPLETE</span>
+          </div>
+        </div>
+      </div>
+      <!-- Step 3 -->
+      <div class="card-brutal shadow-brutal-good p-8 flex flex-col">
+        <div class="flex justify-between items-start mb-6">
+          <span class="font-mono text-xs font-bold text-good-dark">03_RESOLUTION</span>
+          <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-good animate-blink"></span>
+            RECOVERED
+          </span>
+        </div>
+        <h3 class="font-display text-xl font-bold mb-4">Below the floor, it heals</h3>
+        <p class="text-ink/70 mb-6 flex-1">If scores dip below your defined threshold, our LLM optimizer automatically rewrites the prompt to restore semantic alignment.</p>
+        <div class="flex items-center gap-3">
+          <div class="flex -space-x-1">
+            <div class="w-8 h-8 border-ink-thin bg-accent flex items-center justify-center"><span class="material-symbols-outlined text-[16px] text-white">bolt</span></div>
+            <div class="w-8 h-8 border-ink-thin bg-good flex items-center justify-center"><span class="material-symbols-outlined text-[16px] text-white">check</span></div>
+          </div>
+          <span class="font-mono text-xs font-bold text-good-dark">PATCH_APPLIED: 12ms</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-</div>
-</section>
-<!-- CTA Footer Section -->
-<section class="py-24 px-margin-mobile text-center">
-<div class="max-w-2xl mx-auto border border-primary/10 bg-white rounded-2xl p-12 shadow-sm relative overflow-hidden"><div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent"></div><h2 class="font-headline-md text-3xl mb-4 text-on-surface">Ready to automate your prompt ops?</h2><p class="text-on-surface-variant mb-8 font-body-lg">Built for HACKHAZARDS '26</p><div class="flex flex-col md:flex-row gap-4 justify-center mt-4"><a href="onboarding.html" class="bg-primary text-on-primary px-8 py-3 rounded font-bold hover:shadow-lg transition-all inline-flex items-center justify-center">Open the console</a><a href="https://github.com/aanayagrawal0-dev/promptops" class="bg-surface-container-low text-on-surface px-8 py-3 rounded border border-outline-variant/40 hover:bg-surface-variant transition-all inline-flex items-center justify-center">View on GitHub</a></div></div>
-</section>
+  <!-- Visual Proof Bento -->
+  <section class="py-24 bg-paper-alt border-ink-t border-ink-b px-6 md:px-10">
+    <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="md:col-span-2 md:row-span-2 card-brutal p-8 flex flex-col justify-between overflow-hidden">
+        <div class="space-y-4">
+          <div class="flex items-center gap-2 text-accent">
+            <span class="material-symbols-outlined">hub</span>
+            <span class="font-mono text-xs uppercase tracking-wider font-bold">RELATIONSHIP_ENGINE</span>
+          </div>
+          <h4 class="font-display text-2xl font-bold">Visualize Complexity</h4>
+          <p class="text-ink/70">Interactive maps of every prompt-to-model dependency in your fleet.</p>
+        </div>
+        <div class="mt-8 relative h-48 border-ink-thin bg-paper p-4 grid-paper">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-16 h-16 border-ink-thin rounded-full flex items-center justify-center">
+              <div class="w-8 h-8 rounded-full bg-accent/20 animate-ping"></div>
+            </div>
+            <div class="absolute top-10 left-10 w-4 h-4 border-ink-thin bg-warn"></div>
+            <div class="absolute bottom-10 right-20 w-4 h-4 border-ink-thin bg-good"></div>
+          </div>
+        </div>
+      </div>
+      <div class="md:col-span-2 card-brutal p-8 flex items-center gap-8">
+        <div class="flex-1 space-y-2">
+          <span class="font-mono text-[10px] uppercase font-bold text-ink/60">DETERMINISTIC_EVALUATION</span>
+          <h4 class="font-display text-xl font-bold">Rule-based scoring</h4>
+          <p class="text-ink/70">No LLM-as-judge variance.</p>
+        </div>
+        <div class="text-accent font-display text-5xl font-bold">100%</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Footer -->
+  <section class="py-24 px-6 text-center">
+    <div class="max-w-2xl mx-auto card-brutal shadow-brutal-accent p-12 relative">
+      <span class="stamp absolute -top-6 -right-6 badge-brutal bg-ink text-paper px-3 py-2 hidden md:inline-flex">HACKHAZARDS '26</span>
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">Ready to automate<br>your prompt ops?</h2>
+      <p class="text-ink/70 mb-8 text-lg">Built for HACKHAZARDS '26</p>
+      <div class="flex flex-col md:flex-row gap-4 justify-center">
+        <a href="onboarding.html" class="btn-brutal btn-brutal-accent px-8 py-3 font-display font-bold">Open the console</a>
+        <a href="https://github.com/aanayagrawal0-dev/promptops" class="btn-brutal px-8 py-3 font-display font-bold">View on GitHub</a>
+      </div>
+    </div>
+  </section>
 </main>
+
 <!-- Footer -->
-<footer class="w-full py-12 bg-white border-t border-outline-variant/30">
-<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop gap-gutter max-w-max-width mx-auto">
-<div class="flex flex-col items-center md:items-start gap-2">
-<span class="font-display-lg text-headline-sm text-on-surface">PromptOps</span>
-<p class="font-code text-body-sm text-on-surface-variant opacity-80">
-                    © 2026 PromptOps. Built for HACKHAZARDS '26.
-                </p>
-</div>
-<div class="flex items-center gap-8">
-<a class="font-code text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Github</a>
-</div>
-</div>
+<footer class="border-ink-t py-12 bg-ink text-paper">
+  <div class="flex flex-col md:flex-row justify-between items-center px-6 md:px-10 gap-6 max-w-[1440px] mx-auto">
+    <div class="flex flex-col items-center md:items-start gap-2">
+      <span class="font-display text-xl font-bold">PROMPTOPS</span>
+      <p class="font-mono text-xs text-paper/60">&copy; 2026 PromptOps. Built for HACKHAZARDS '26.</p>
+    </div>
+    <div class="flex items-center gap-8">
+      <a class="font-mono text-sm text-paper/70 hover:text-accent transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Github</a>
+    </div>
+  </div>
 </footer>
-<script>
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes infinite-scroll {
-                from { transform: translateX(0); }
-                to { transform: translateX(-50%); }
-            }
-            .animate-infinite-scroll {
-                animation: infinite-scroll 30s linear infinite;
-            }
-            @keyframes shimmer {
-                0% { background-position: -200% 0; }
-                100% { background-position: 200% 0; }
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
-
-
-</body></html>
+</body>
+</html>
