@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PromptOps | Prompt Console</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-container-high": "#e6e8ea",
+                    "surface-container": "#eceef0",
+                    "primary": "#324963",
+                    "inverse-primary": "#b1c9e8",
+                    "tertiary": "#40475d",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#d1e4ff",
+                    "surface-container-low": "#f2f4f6",
+                    "secondary-container": "#bad7ff",
+                    "on-secondary-container": "#415d80",
+                    "on-background": "#191c1e",
+                    "background": "#f7f9fb",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#3f465c",
+                    "on-primary-container": "#c4dcfc",
+                    "on-secondary-fixed": "#001c37",
+                    "primary-container": "#4a617c",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#acc9f0",
+                    "on-tertiary-fixed": "#131b2e",
+                    "surface-dim": "#d8dadc",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#2c486a",
+                    "outline": "#74777e",
+                    "on-primary-fixed": "#011d35",
+                    "tertiary-container": "#575f75",
+                    "outline-variant": "#c3c6ce",
+                    "on-primary-fixed-variant": "#314862",
+                    "surface-tint": "#49607b",
+                    "surface-container-lowest": "#ffffff",
+                    "error": "#ba1a1a",
+                    "secondary": "#446083",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed": "#dae2fd",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed-dim": "#b1c9e8",
+                    "tertiary-fixed-dim": "#bec6e0",
+                    "surface-bright": "#f7f9fb",
+                    "on-surface": "#191c1e",
+                    "inverse-surface": "#2d3133",
+                    "on-tertiary-container": "#d2d9f4",
+                    "surface-container-highest": "#e0e3e5",
+                    "surface-variant": "#e0e3e5",
+                    "surface": "#f7f9fb",
+                    "secondary-fixed": "#d2e4ff",
+                    "on-surface-variant": "#43474d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "xl": "48px",
+                    "gutter": "16px",
+                    "sm": "8px",
+                    "margin-desktop": "32px",
+                    "base": "4px",
+                    "md": "16px",
+                    "margin-mobile": "16px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "body-sm": ["Inter"],
+                    "label-md": ["JetBrains Mono"],
+                    "headline-lg": ["JetBrains Mono"],
+                    "headline-md": ["JetBrains Mono"],
+                    "body-lg": ["Inter"],
+                    "headline-sm": ["JetBrains Mono"],
+                    "label-sm": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "code": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "body-sm": ["12px", {"lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "headline-sm": ["18px", {"lineHeight": "1.4", "letterSpacing": "0em", "fontWeight": "500"}],
+                    "label-sm": ["10px", {"lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "500"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "code": ["13px", {"lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #F8FAFC;
+            color: #191c1e;
+            -webkit-font-smoothing: antialiased;
+        }
+        .technical-border {
+            border: 1px solid #E2E8F0;
+        }
+        .active-nav-indicator {
+            position: relative;
+        }
+        .active-nav-indicator::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 25%;
+            height: 50%;
+            width: 2px;
+            background-color: #4A617C;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-surface border-b border-outline-variant flex justify-between items-center px-margin-desktop h-16 w-full max-w-full sticky top-0 z-50">
+<div class="flex items-center gap-md">
+<a href="landing.html" class="font-headline-sm text-headline-sm font-code text-primary tracking-tight">PromptOps</a>
+<nav class="hidden md:flex gap-lg ml-xl">
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors" href="console.html">Console</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Docs</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer active:opacity-80 transition-colors hover:text-primary">settings</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer active:opacity-80 transition-colors hover:text-primary">account_circle</span>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Vertical Sidebar -->
+<aside class="w-64 bg-surface-container-lowest border-r border-outline-variant hidden md:flex flex-col py-lg shrink-0">
+<div class="px-lg mb-xl">
+<a href="dashboard.html" class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-sm px-md flex items-center justify-center gap-sm hover:opacity-90 active:opacity-80 transition-all rounded">
+<span class="material-symbols-outlined">add</span>
+                    Register New Template
+                </a>
+</div>
+<nav class="flex flex-col">
+<div class="px-lg py-xs text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest opacity-50 mb-xs">Navigations</div>
+<a class="px-lg py-sm flex items-center gap-sm bg-surface-container-low active-nav-indicator text-primary font-medium" href="console.html">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-body-md text-body-md">All Prompts</span>
+</a>
+<a class="px-lg py-sm flex items-center gap-sm text-on-surface-variant hover:bg-surface-container-low transition-colors" href="dashboard.html">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md text-body-md">Regressions</span>
+</a>
+<div class="mt-xl px-lg py-xs text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest opacity-50 mb-xs">Systems</div>
+<a class="px-lg py-sm flex items-center gap-sm text-on-surface-variant hover:bg-surface-container-low transition-colors" href="dashboard.html">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-body-md text-body-md">Dependencies</span>
+</a>
+<a class="px-lg py-sm flex items-center gap-sm text-on-surface-variant hover:bg-surface-container-low transition-colors" href="onboarding.html">
+<span class="material-symbols-outlined">settings_input_component</span>
+<span class="font-body-md text-body-md">Initialize Fleet</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto p-margin-desktop bg-background">
+<div class="max-w-6xl mx-auto">
+<header class="mb-lg flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<h1 class="font-headline-md text-headline-md text-primary mb-xs">Prompt Console</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Real-time health monitoring for production LLM templates.</p>
+</div>
+<div class="flex gap-sm">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60">search</span>
+<input class="bg-surface-container-lowest border border-outline-variant pl-xl pr-md py-xs font-body-sm text-body-sm focus:ring-2 focus:ring-primary-container outline-none min-w-[240px]" placeholder="Filter templates..." type="text"/>
+</div>
+</div>
+</header>
+<!-- Data Table Section -->
+<div class="bg-surface-container-lowest technical-border">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="py-sm px-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Template Name</th>
+<th class="py-sm px-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-center">Status</th>
+<th class="py-sm px-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Last Eval Time</th>
+<th class="py-sm px-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Dependencies</th>
+<th class="py-sm px-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider w-10"></th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm">
+<tr class="border-b border-outline-variant hover:bg-surface-container transition-colors group cursor-pointer" onclick="location.href='dashboard.html'">
+<td class="py-md px-md">
+<div class="flex flex-col">
+<span class="font-code text-code font-medium text-primary">stock_advisor</span>
+<span class="text-[10px] opacity-60">uses: compliance_disclaimer</span>
+</div>
+</td>
+<td class="py-md px-md">
+<div class="flex justify-center">
+<span class="px-sm py-[2px] bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-sm font-label-sm text-label-sm flex items-center gap-xs">
+<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                                            Healthy
+                                        </span>
+</div>
+</td>
+<td class="py-md px-md font-code opacity-80">seeded &middot; v1</td>
+<td class="py-md px-md text-right font-code text-on-surface-variant">1</td>
+<td class="py-md px-md">
+<button class="material-symbols-outlined opacity-0 group-hover:opacity-100 hover:text-primary transition-all">chevron_right</button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container transition-colors group cursor-pointer" onclick="location.href='dashboard.html'">
+<td class="py-md px-md">
+<div class="flex flex-col">
+<span class="font-code text-code font-medium text-primary">fund_summary</span>
+<span class="text-[10px] opacity-60">uses: compliance_disclaimer</span>
+</div>
+</td>
+<td class="py-md px-md">
+<div class="flex justify-center">
+<span class="px-sm py-[2px] bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-sm font-label-sm text-label-sm flex items-center gap-xs">
+<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                                            Healthy
+                                        </span>
+</div>
+</td>
+<td class="py-md px-md font-code opacity-80">seeded &middot; v1</td>
+<td class="py-md px-md text-right font-code text-on-surface-variant">1</td>
+<td class="py-md px-md">
+<button class="material-symbols-outlined opacity-0 group-hover:opacity-100 hover:text-primary transition-all">chevron_right</button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container transition-colors group cursor-pointer" onclick="location.href='dashboard.html'">
+<td class="py-md px-md">
+<div class="flex flex-col">
+<span class="font-code text-code font-medium text-primary">sip_explainer</span>
+<span class="text-[10px] opacity-60">uses: compliance_disclaimer</span>
+</div>
+</td>
+<td class="py-md px-md">
+<div class="flex justify-center">
+<span class="px-sm py-[2px] bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-sm font-label-sm text-label-sm flex items-center gap-xs">
+<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                                            Healthy
+                                        </span>
+</div>
+</td>
+<td class="py-md px-md font-code opacity-80">seeded &middot; v1</td>
+<td class="py-md px-md text-right font-code text-on-surface-variant">1</td>
+<td class="py-md px-md">
+<button class="material-symbols-outlined opacity-0 group-hover:opacity-100 hover:text-primary transition-all">chevron_right</button>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination-style Footer for Table -->
+<div class="p-md flex justify-between items-center bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-on-surface-variant opacity-60">Showing 3 of 3 registered templates</span>
+<div class="flex gap-sm">
+<button class="px-sm py-1 border border-outline-variant font-label-sm text-label-sm opacity-40 cursor-not-allowed" disabled="">Prev</button>
+<button class="px-sm py-1 border border-outline-variant font-label-sm text-label-sm opacity-40 cursor-not-allowed" disabled="">Next</button>
+</div>
+</div>
+</div>
+<!-- Secondary Insight Cards -->
+<div class="mt-lg grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="md:col-span-2 bg-surface-container-lowest technical-border p-md">
+<h3 class="font-label-md text-label-md text-primary mb-md border-b border-outline-variant pb-xs">System Evaluator Status</h3>
+<div class="flex items-center gap-lg">
+<div class="relative w-24 h-24">
+<svg class="w-full h-full" viewbox="0 0 36 36">
+<path class="text-surface-container stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
+<path class="text-primary stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="100, 100" stroke-linecap="butt" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-code text-headline-sm">100%</div>
+</div>
+<div class="flex-1 grid grid-cols-2 gap-sm">
+<div class="p-xs bg-surface-container-low">
+<div class="font-label-sm text-label-sm opacity-60">Threshold</div>
+<div class="font-code text-body-lg text-primary">0.80</div>
+</div>
+<div class="p-xs bg-surface-container-low">
+<div class="font-label-sm text-label-sm opacity-60">Templates Tracked</div>
+<div class="font-code text-body-lg text-primary">1</div>
+</div>
+<div class="p-xs bg-surface-container-low">
+<div class="font-label-sm text-label-sm opacity-60">Auto-rollbacks (session)</div>
+<div class="font-code text-body-lg text-emerald-600">0</div>
+</div>
+<div class="p-xs bg-surface-container-low">
+<div class="font-label-sm text-label-sm opacity-60">Prompts Tracked</div>
+<div class="font-code text-body-lg text-primary">3</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest technical-border p-md flex flex-col justify-between">
+<div>
+<h3 class="font-label-md text-label-md text-primary mb-sm border-b border-outline-variant pb-xs">Dependency Graph</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant opacity-80">See which prompts share the compliance_disclaimer template.</p>
+</div>
+<div class="h-32 bg-surface-container-low rounded-sm relative overflow-hidden flex items-center justify-center">
+<div class="w-full h-full opacity-20 pointer-events-none" style="background-image: radial-gradient(circle, #324963 1px, transparent 1px); background-size: 8px 8px;"></div>
+<span class="material-symbols-outlined text-primary-fixed-dim text-4xl">hub</span>
+</div>
+<a href="dashboard.html" class="mt-md text-primary font-label-sm text-label-sm hover:underline text-left">View Dependency Graph →</a>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant flex flex-col md:flex-row justify-between items-center py-lg px-margin-desktop w-full">
+<div class="flex flex-col items-center md:items-start gap-xs">
+<span class="font-code text-label-sm text-on-surface-variant uppercase tracking-widest">PromptOps Technical Systems</span>
+<span class="font-body-sm text-body-sm text-secondary opacity-90">Built for HACKHAZARDS '26</span>
+</div>
+<div class="flex gap-lg mt-md md:mt-0">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Github</a>
+</div>
+</footer>
+<script>
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                row.style.backgroundColor = '#eceef0';
+                setTimeout(() => { row.style.backgroundColor = ''; }, 150);
+            });
+        });
+    </script>
+</body></html>
