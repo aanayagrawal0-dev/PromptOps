@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PromptOps | Prompt Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="assets/brutalist.css" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: "#0a0a0a", paper: "#ffffff", "paper-alt": "#f2f1ec", "paper-dim": "#e4e2d8",
+          accent: "#3d5afe", "accent-dark": "#0031ca", "accent-light": "#e8eaff",
+          good: "#00c853", "good-dark": "#007a3d", "good-light": "#dcffea",
+          warn: "#ffab00", "warn-dark": "#a66900", "warn-light": "#fff3d6",
+          bad: "#ff1744", "bad-dark": "#a4001e", "bad-light": "#ffdde3"
+        },
+        fontFamily: { display: ["Space Grotesk", "sans-serif"], mono: ["JetBrains Mono", "monospace"], sans: ["Inter", "sans-serif"] },
+        borderRadius: { none: "0px", DEFAULT: "0px", sm: "0px", md: "2px", lg: "2px", xl: "2px", full: "9999px" }
+      }
+    }
+  }
+</script>
+<style>
+  .active-nav-item { background: var(--ink); color: var(--paper); }
+  .nav-item:hover:not(.active-nav-item) { background: var(--paper-dim); }
+</style>
+</head>
+<body class="bg-paper text-ink font-sans flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-paper border-ink-b flex justify-between items-center px-6 md:px-10 h-16 w-full sticky top-0 z-50">
+  <div class="flex items-center gap-3">
+    <a href="landing.html" class="font-display text-xl font-bold tracking-tight flex items-center gap-2">
+      <span class="w-3 h-3 bg-accent border-ink-thin inline-block"></span>
+      PROMPT<span class="text-accent">OPS</span>
+    </a>
+    <nav class="hidden md:flex gap-2 ml-8">
+      <a class="font-mono text-xs uppercase font-bold px-3 py-2 bg-ink text-paper" href="console.html">Console</a>
+      <a class="font-mono text-xs uppercase font-bold px-3 py-2 hover:bg-paper-dim transition-colors" href="dashboard.html">Dependencies</a>
+      <a class="font-mono text-xs uppercase font-bold px-3 py-2 hover:bg-paper-dim transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Docs</a>
+    </nav>
+  </div>
+  <div class="flex items-center gap-3">
+    <span class="material-symbols-outlined cursor-pointer p-1 hover:text-accent transition-colors">settings</span>
+    <span class="material-symbols-outlined cursor-pointer p-1 hover:text-accent transition-colors">account_circle</span>
+  </div>
+</header>
+
+<div class="flex flex-1 overflow-hidden">
+  <!-- Vertical Sidebar -->
+  <aside class="w-64 border-ink-r hidden md:flex flex-col py-6 shrink-0 bg-paper">
+    <div class="px-6 mb-8">
+      <a href="new-template.html" class="btn-brutal btn-brutal-accent w-full py-2.5 px-4 flex items-center justify-center gap-2 font-mono text-xs uppercase font-bold">
+        <span class="material-symbols-outlined text-[18px]">add</span>
+        Register New Template
+      </a>
+    </div>
+    <nav class="flex flex-col gap-1 px-3">
+      <div class="px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-ink/40 mb-1">Navigation</div>
+      <a class="nav-item active-nav-item px-3 py-2 flex items-center gap-2 font-bold" href="console.html">
+        <span class="material-symbols-outlined text-[18px]">terminal</span>
+        <span class="text-sm">All Prompts</span>
+      </a>
+      <a class="nav-item px-3 py-2 flex items-center gap-2 transition-colors" href="regressions.html">
+        <span class="material-symbols-outlined text-[18px]">analytics</span>
+        <span class="text-sm">Regressions</span>
+      </a>
+      <div class="mt-6 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-ink/40 mb-1">Systems</div>
+      <a class="nav-item px-3 py-2 flex items-center gap-2 transition-colors" href="dashboard.html">
+        <span class="material-symbols-outlined text-[18px]">hub</span>
+        <span class="text-sm">Dependencies</span>
+      </a>
+      <a class="nav-item px-3 py-2 flex items-center gap-2 transition-colors" href="onboarding.html">
+        <span class="material-symbols-outlined text-[18px]">settings_input_component</span>
+        <span class="text-sm">Initialize Fleet</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto p-6 md:p-10 bg-paper-alt">
+    <div class="max-w-6xl mx-auto">
+      <header class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 class="font-display text-3xl font-bold mb-1">Prompt Console</h1>
+          <p class="text-ink/70">Real-time health monitoring for production LLM templates.</p>
+        </div>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink/40">search</span>
+          <input class="input-brutal pl-11 pr-4 py-2 text-sm min-w-[240px]" placeholder="Filter templates..." type="text"/>
+        </div>
+      </header>
+
+      <!-- Data Table Section -->
+      <div class="card-brutal overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-ink text-paper">
+              <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider">Template Name</th>
+              <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider text-center">Status</th>
+              <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider">Last Eval Time</th>
+              <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider text-right">Dependencies</th>
+              <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider w-10"></th>
+            </tr>
+          </thead>
+          <tbody class="text-sm">
+            <tr class="border-ink-b hover:bg-accent-light transition-colors group cursor-pointer" onclick="location.href='dashboard.html'">
+              <td class="py-4 px-4">
+                <div class="flex flex-col">
+                  <span class="font-mono font-bold">stock_advisor</span>
+                  <span class="text-[10px] text-ink/50">uses: compliance_disclaimer</span>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex justify-center">
+                  <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
+                    Healthy
+                  </span>
+                </div>
+              </td>
+              <td class="py-4 px-4 font-mono text-ink/70">seeded &middot; v1</td>
+              <td class="py-4 px-4 text-right font-mono">1</td>
+              <td class="py-4 px-4">
+                <button class="material-symbols-outlined opacity-0 group-hover:opacity-100 hover:text-accent transition-all">chevron_right</button>
+              </td>
+            </tr>
+            <tr class="border-ink-b hover:bg-accent-light transition-colors group cursor-pointer" onclick="location.href='dashboard.html'">
+              <td class="py-4 px-4">
+                <div class="flex flex-col">
+                  <span class="font-mono font-bold">fund_summary</span>
+                  <span class="text-[10px] text-ink/50">uses: compliance_disclaimer</span>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex justify-center">
+                  <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
+                    Healthy
+                  </span>
+                </div>
+              </td>
+              <td class="py-4 px-4 font-mono text-ink/70">seeded &middot; v1</td>
+              <td class="py-4 px-4 text-right font-mono">1</td>
+              <td class="py-4 px-4">
+                <button class="material-symbols-outlined opacity-0 group-hover:opacity-100 hover:text-accent transition-all">chevron_right</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-accent-light transition-colors group cursor-pointer" onclick="location.href='dashboard.html'">
+              <td class="py-4 px-4">
+                <div class="flex flex-col">
+                  <span class="font-mono font-bold">sip_explainer</span>
+                  <span class="text-[10px] text-ink/50">uses: compliance_disclaimer</span>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex justify-center">
+                  <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
+                    Healthy
+                  </span>
+                </div>
+              </td>
+              <td class="py-4 px-4 font-mono text-ink/70">seeded &middot; v1</td>
+              <td class="py-4 px-4 text-right font-mono">1</td>
+              <td class="py-4 px-4">
+                <button class="material-symbols-outlined opacity-0 group-hover:opacity-100 hover:text-accent transition-all">chevron_right</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- Pagination-style Footer for Table -->
+        <div class="p-4 flex justify-between items-center bg-paper-alt border-ink-t">
+          <span class="font-mono text-[11px] text-ink/50">Showing 3 of 3 registered templates</span>
+          <div class="flex gap-2">
+            <button class="px-3 py-1 border-ink-thin font-mono text-[11px] opacity-40 cursor-not-allowed" disabled="">Prev</button>
+            <button class="px-3 py-1 border-ink-thin font-mono text-[11px] opacity-40 cursor-not-allowed" disabled="">Next</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary Insight Cards -->
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2 card-brutal p-6">
+          <h3 class="font-mono text-xs uppercase font-bold mb-4 border-ink-b pb-2">System Evaluator Status</h3>
+          <div class="flex items-center gap-8">
+            <div class="relative w-24 h-24 shrink-0">
+              <svg class="w-full h-full" viewBox="0 0 36 36">
+                <path class="stroke-current text-paper-dim" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="4"></path>
+                <path class="stroke-current text-accent" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="100, 100" stroke-linecap="butt" stroke-width="4"></path>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center font-mono text-lg font-bold">100%</div>
+            </div>
+            <div class="flex-1 grid grid-cols-2 gap-3">
+              <div class="p-3 border-ink-thin">
+                <div class="font-mono text-[10px] uppercase text-ink/50">Threshold</div>
+                <div class="font-mono text-lg font-bold text-accent">0.80</div>
+              </div>
+              <div class="p-3 border-ink-thin">
+                <div class="font-mono text-[10px] uppercase text-ink/50">Templates Tracked</div>
+                <div class="font-mono text-lg font-bold text-accent">1</div>
+              </div>
+              <div class="p-3 border-ink-thin">
+                <div class="font-mono text-[10px] uppercase text-ink/50">Auto-rollbacks (session)</div>
+                <div class="font-mono text-lg font-bold text-good-dark">0</div>
+              </div>
+              <div class="p-3 border-ink-thin">
+                <div class="font-mono text-[10px] uppercase text-ink/50">Prompts Tracked</div>
+                <div class="font-mono text-lg font-bold text-accent">3</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-brutal p-6 flex flex-col justify-between">
+          <div>
+            <h3 class="font-mono text-xs uppercase font-bold mb-3 border-ink-b pb-2">Dependency Graph</h3>
+            <p class="text-sm text-ink/70">See which prompts share the compliance_disclaimer template.</p>
+          </div>
+          <div class="h-32 border-ink-thin relative overflow-hidden flex items-center justify-center mt-4" style="background-image: radial-gradient(circle, rgba(10,10,10,0.15) 1px, transparent 1px); background-size: 10px 10px;">
+            <span class="material-symbols-outlined text-accent text-4xl">hub</span>
+          </div>
+          <a href="dashboard.html" class="mt-4 text-accent font-mono text-xs font-bold hover:underline">View Dependency Graph &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Footer -->
+<footer class="bg-ink text-paper border-ink-t flex flex-col md:flex-row justify-between items-center py-6 px-6 md:px-10 w-full">
+  <div class="flex flex-col items-center md:items-start gap-1">
+    <span class="font-mono text-[11px] uppercase tracking-widest text-paper/60">PromptOps Technical Systems</span>
+    <span class="text-sm text-paper/80">Built for HACKHAZARDS '26</span>
+  </div>
+  <div class="flex gap-6 mt-4 md:mt-0">
+    <a class="text-sm text-paper/70 hover:text-accent transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Github</a>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('tbody tr').forEach(row => {
+    row.addEventListener('click', () => {
+      row.style.backgroundColor = '#e8eaff';
+      setTimeout(() => { row.style.backgroundColor = ''; }, 150);
+    });
+  });
+</script>
+</body>
+</html>
