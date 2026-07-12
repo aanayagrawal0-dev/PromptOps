@@ -53,6 +53,13 @@ def init_db():
         )
 
 
+def reset_demo():
+    """Clear the local demo data so /demo/seed is repeatable."""
+    with _conn() as c:
+        c.execute("DELETE FROM prompts")
+        c.execute("DELETE FROM templates")
+
+
 # ---- templates ------------------------------------------------------------
 def add_template_version(template_id: str, text: str) -> int:
     with _conn() as c:
@@ -82,6 +89,17 @@ def latest_template_version(template_id: str) -> int | None:
             "SELECT MAX(version) AS v FROM templates WHERE id=?", (template_id,)
         ).fetchone()
         return row["v"]
+
+
+def latest_templates() -> list[dict]:
+    with _conn() as c:
+        rows = c.execute(
+            """SELECT t.* FROM templates t
+               JOIN (SELECT id, MAX(version) AS mv FROM templates GROUP BY id) latest
+                 ON t.id = latest.id AND t.version = latest.mv
+               ORDER BY t.id"""
+        ).fetchall()
+        return [dict(r) for r in rows]
 
 
 # ---- prompts --------------------------------------------------------------
@@ -160,6 +178,22 @@ def prompts_using_template(template_id: str) -> list[dict]:
                  ON p.id = latest.id AND p.version = latest.mv
                WHERE p.template_id = ?""",
             (template_id,),
+        ).fetchall()
+        out = []
+        for r in rows:
+            d = dict(r)
+            d["dataset"] = json.loads(d["dataset"])
+            out.append(d)
+        return out
+
+
+def latest_prompts() -> list[dict]:
+    with _conn() as c:
+        rows = c.execute(
+            """SELECT p.* FROM prompts p
+               JOIN (SELECT id, MAX(version) AS mv FROM prompts GROUP BY id) latest
+                 ON p.id = latest.id AND p.version = latest.mv
+               ORDER BY p.id"""
         ).fetchall()
         out = []
         for r in rows:

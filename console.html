@@ -107,7 +107,7 @@
               <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider w-10"></th>
             </tr>
           </thead>
-          <tbody class="text-sm">
+          <tbody class="text-sm" id="promptRows">
             <tr class="border-ink-b hover:bg-accent-light transition-colors group cursor-pointer" onclick="location.href='dashboard.html'">
               <td class="py-4 px-4">
                 <div class="flex flex-col">
@@ -242,6 +242,82 @@
 </footer>
 
 <script>
+  const API_BASE = localStorage.getItem('promptops_api_base') || 'http://localhost:8000';
+  const rows = document.getElementById('promptRows');
+
+  async function api(path, options = {}) {
+    const response = await fetch(`${API_BASE}${path}`, {
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      ...options
+    });
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    return response.json();
+  }
+
+  function statusBadge(status) {
+    const normalized = (status || 'green').toLowerCase();
+    const config = normalized === 'red'
+      ? ['bg-bad-light', 'text-bad-dark', 'bg-bad', 'Broken']
+      : normalized === 'amber'
+        ? ['bg-warn-light', 'text-warn-dark', 'bg-warn', 'Flagged']
+        : ['bg-good-light', 'text-good-dark', 'bg-good', 'Healthy'];
+
+    return `
+      <span class="badge-brutal ${config[0]} ${config[1]} px-2 py-1">
+        <span class="w-1.5 h-1.5 rounded-full ${config[2]}"></span>
+        ${config[3]}
+      </span>
+    `;
+  }
+
+  function renderConsole(graph) {
+    const prompts = graph.nodes.filter(node => node.type === 'Prompt');
+    const edges = graph.edges.reduce((acc, edge) => {
+      acc[edge.source] = edge;
+      return acc;
+    }, {});
+
+    rows.innerHTML = prompts.map((prompt, index) => {
+      const edge = edges[prompt.id] || {};
+      const border = index === prompts.length - 1 ? '' : 'border-ink-b';
+      return `
+        <tr class="${border} hover:bg-accent-light transition-colors group cursor-pointer" onclick="location.href='dashboard.html'">
+          <td class="py-4 px-4">
+            <div class="flex flex-col">
+              <span class="font-mono font-bold">${prompt.id}</span>
+              <span class="text-[10px] text-ink/50">uses: ${edge.target || 'standalone'}</span>
+            </div>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex justify-center">${statusBadge(prompt.status)}</div>
+          </td>
+          <td class="py-4 px-4 font-mono text-ink/70">v${prompt.version} &middot; score ${Number(prompt.score ?? 0).toFixed(2)}</td>
+          <td class="py-4 px-4 text-right font-mono">${edge.target ? 1 : 0}</td>
+          <td class="py-4 px-4">
+            <button class="material-symbols-outlined opacity-0 group-hover:opacity-100 hover:text-accent transition-all">chevron_right</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  api('/graph')
+    .then(graph => {
+      if (graph.nodes.some(node => node.type === 'Prompt')) return graph;
+      return api('/demo/seed', { method: 'POST' }).then(result => result.graph);
+    })
+    .then(renderConsole)
+    .catch(error => {
+      rows.innerHTML = `
+        <tr>
+          <td colspan="5" class="py-6 px-4 text-center">
+            <p class="font-mono text-xs font-bold text-bad-dark">FastAPI backend offline</p>
+            <p class="text-xs text-ink/60 mt-1">Start ${API_BASE}, then refresh. ${error.message}</p>
+          </td>
+        </tr>
+      `;
+    });
+
   document.querySelectorAll('tbody tr').forEach(row => {
     row.addEventListener('click', () => {
       row.style.backgroundColor = '#e8eaff';

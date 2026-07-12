@@ -98,7 +98,7 @@
         <div class="card-brutal flex-1 relative flex flex-col overflow-hidden">
           <div class="border-ink-b p-4 flex items-center justify-between bg-ink text-paper">
             <span class="font-mono text-xs font-bold">GRAPH_ENGINE_V2 :: LIVE_VIEW</span>
-            <span class="font-mono text-[11px] uppercase text-paper/60">USE_LIVE: false</span>
+            <span class="font-mono text-[11px] uppercase text-paper/60" id="apiStatus">CONNECTING...</span>
           </div>
           <div class="flex-1 relative bg-paper pattern-dots">
             <svg class="w-full h-full" id="dependencyGraph" viewBox="0 0 800 600">
@@ -255,8 +255,10 @@
     greeting_bot: { x: 412, y: 495 }
   };
 
-  const BREAKING_CONTENT = "WARNING: System-wide override enabled. This template now includes restrictive legal phrasing that may conflict with conversational tones and specific financial terminology. Ensure all downstream prompts are compatible with strict clause 4B.1.";
-  const DEFAULT_CONTENT = "Standard regulatory disclaimer for all financial advisory products. Ensure neutral tone and high clarity.";
+  const API_BASE = localStorage.getItem('promptops_api_base') || 'http://localhost:8000';
+  const TEMPLATE_ID = 'compliance_disclaimer';
+  const BREAKING_CONTENT = "Keep every response concise.";
+  const DEFAULT_CONTENT = "Always end your answer by telling the user this is not financial advice and not a recommendation to buy or sell.";
 
   document.getElementById('templateContent').value = DEFAULT_CONTENT;
 
@@ -266,39 +268,138 @@
   const signalDot = document.getElementById('signalDot');
   const log = document.getElementById('decisionLog');
   const hindiBox = document.getElementById('regressionExplain');
+  const apiStatus = document.getElementById('apiStatus');
 
   loadBreakingBtn.addEventListener('click', () => {
     document.getElementById('templateContent').value = BREAKING_CONTENT;
   });
 
-  resetBtn.addEventListener('click', () => {
-    location.reload();
+  resetBtn.addEventListener('click', async () => {
+    await seedDemo();
+    log.innerHTML = '<div class="text-ink/40 text-xs italic text-center py-8 font-mono">Demo reset from backend.</div>';
+    hindiBox.classList.add('hidden');
   });
 
   applyBtn.addEventListener('click', async () => {
-    const isBreaking = document.getElementById('templateContent').value.includes("WARNING");
     applyBtn.disabled = true;
     applyBtn.innerText = "PROCESSING...";
 
     log.innerHTML = '';
     hindiBox.classList.add('hidden');
 
-    const targets = ['stock_advisor', 'fund_summary', 'sip_explainer', 'market_news', 'greeting_bot'];
+    try {
+      const result = await api('/templates/edit', {
+        method: 'POST',
+        body: JSON.stringify({
+          template_id: TEMPLATE_ID,
+          new_text: document.getElementById('templateContent').value
+        })
+      });
 
-    for (const id of targets) {
-      await animateSignal(id);
-      updateNodeState(id, isBreaking);
-    }
+      for (const decision of result.decisions) {
+        if (!nodePositions[decision.prompt_id]) continue;
+        await animateSignal(decision.prompt_id);
+        updateNodeFromDecision(decision);
+      }
 
-    applyBtn.disabled = false;
-    applyBtn.innerText = "APPLY EDIT";
-
-    if (isBreaking) {
-      setTimeout(() => {
-        hindiBox.classList.remove('hidden');
-      }, 500);
+      renderGraphState(result.graph);
+      showRegressionExplanation(result.decisions);
+      apiStatus.textContent = 'USE_LIVE: true';
+    } catch (error) {
+      showApiError(error);
+    } finally {
+      applyBtn.disabled = false;
+      applyBtn.innerText = "APPLY EDIT";
     }
   });
+
+  async function api(path, options = {}) {
+    const response = await fetch(`${API_BASE}${path}`, {
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      ...options
+    });
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+    return response.json();
+  }
+
+  async function seedDemo() {
+    const result = await api('/demo/seed', { method: 'POST' });
+    renderGraphState(result.graph);
+    apiStatus.textContent = 'USE_LIVE: true';
+    return result;
+  }
+
+  function renderGraphState(graph) {
+    if (!graph || !Array.isArray(graph.nodes)) return;
+    graph.nodes
+      .filter(node => node.type === 'Prompt' && document.getElementById(`node-${node.id}`))
+      .forEach(node => {
+        const status = (node.status || 'green').toLowerCase();
+        const color = status === 'red' ? 'red' : status === 'amber' ? 'amber' : 'emerald';
+        paintNodeById(node.id, {
+          status: status === 'amber' ? 'FLAGGED' : status === 'red' ? 'BROKEN' : 'HEALTHY',
+          score: Number(node.score ?? 1).toFixed(2),
+          color
+        });
+      });
+  }
+
+  function updateNodeFromDecision(decision) {
+    const color = decision.status === 'red' ? 'red' : decision.status === 'amber' ? 'amber' : 'emerald';
+    const label = decision.status === 'red' ? 'BROKEN' : decision.status === 'amber' ? 'FLAGGED' : 'HEALTHY';
+    const state = {
+      status: label,
+      score: Number(decision.new_score ?? 0).toFixed(2),
+      color
+    };
+
+    paintNodeById(decision.prompt_id, state);
+    addDecisionToLog(decision, state);
+
+    if (decision.action === 'auto_rollback') {
+      setTimeout(() => {
+        const healed = { status: 'HEALTHY', score: Number(decision.prev_score ?? 1).toFixed(2), color: 'emerald' };
+        paintNodeById(decision.prompt_id, healed);
+        updateLogEntry(decision.prompt_id, healed, 'PINNED BACK TO v1');
+      }, 700);
+    }
+  }
+
+  function paintNodeById(id, state) {
+    const node = document.getElementById(`node-${id}`);
+    if (!node) return;
+    paintNode(
+      node,
+      node.querySelector('.score-val'),
+      node.querySelector('.status-text'),
+      node.querySelector('.status-bg'),
+      node.querySelector('rect'),
+      state
+    );
+  }
+
+  function showRegressionExplanation(decisions) {
+    const explanation = decisions.find(d => d.explanation)?.explanation;
+    if (!explanation) return;
+    hindiBox.querySelector('p').textContent = explanation;
+    setTimeout(() => {
+      hindiBox.classList.remove('hidden');
+    }, 500);
+  }
+
+  function showApiError(error) {
+    apiStatus.textContent = 'BACKEND OFFLINE';
+    log.innerHTML = `
+      <div class="bg-bad-light border-ink p-3">
+        <p class="font-mono text-[11px] font-bold text-bad-dark">FastAPI connection failed</p>
+        <p class="text-xs mt-1 text-ink/70">Start the backend on ${API_BASE}, then reset the graph. ${error.message}</p>
+      </div>
+    `;
+  }
+
+  seedDemo().catch(showApiError);
 
   function animateSignal(targetId) {
     return new Promise(resolve => {
@@ -364,6 +465,35 @@
         updateLogEntry(id, healed, 'PINNED BACK TO v1');
       }, 700);
     }
+  }
+
+  function addDecisionToLog(decision, state) {
+    const entry = document.createElement('div');
+    entry.id = `log-${decision.prompt_id}`;
+    entry.className = "flex items-center justify-between border-ink-b pb-2 last:border-0 last:pb-0";
+
+    const prev = Number(decision.prev_score ?? 0);
+    const next = Number(decision.new_score ?? 0);
+    const delta = next >= prev ? '+0.00' : `-${(prev - next).toFixed(2)}`;
+    const deltaColor = state.status === 'HEALTHY' ? 'text-ink/50' : 'text-bad-dark font-bold';
+    const action = decision.action === 'auto_rollback'
+      ? 'ROLLING BACK...'
+      : decision.action === 'flag_manual'
+        ? 'FLAGGED FOR REVIEW'
+        : 'ACKNOWLEDGED';
+
+    entry.innerHTML = `
+      <div>
+        <p class="font-mono text-[11px] font-bold">${decision.prompt_id}</p>
+        <span class="badge-brutal bg-${state.color}-100 text-${state.color}-700 mt-1 px-1.5 py-0.5">${state.status}</span>
+      </div>
+      <div class="text-right">
+        <p class="delta-val font-mono text-[10px] ${deltaColor}">${delta}</p>
+        <p class="action-label text-[9px] text-ink/50 uppercase">${action}</p>
+      </div>
+    `;
+    log.appendChild(entry);
+    log.scrollTop = log.scrollHeight;
   }
 
   // SVG elements do not support plain `.className = "..."` assignment --

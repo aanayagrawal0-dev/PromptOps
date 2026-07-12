@@ -28,6 +28,7 @@ _DATASET = [
 
 def seed():
     db.init_db()
+    db.reset_demo()
 
     tv = db.add_template_version("compliance_disclaimer", DISCLAIMER_V1)
     graph.upsert_template("compliance_disclaimer", tv)

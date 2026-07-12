@@ -110,7 +110,20 @@ def blast_radius(template_id: str) -> list[dict]:
                   r.pinned_version AS pinned""",
         tid=template_id,
     )
-    return [dict(r) for r in rows]
+    if rows:
+        return [dict(r) for r in rows]
+
+    from . import db
+
+    return [
+        {
+            "id": p["id"],
+            "score": p["score"],
+            "status": p["status"],
+            "pinned": p["pinned_template_version"],
+        }
+        for p in db.prompts_using_template(template_id)
+    ]
 
 
 def snapshot() -> dict:
@@ -124,4 +137,39 @@ def snapshot() -> dict:
            RETURN a.id AS source, b.id AS target, type(r) AS type,
                   r.pinned_version AS pinned"""
     )
-    return {"nodes": [dict(n) for n in nodes], "edges": [dict(e) for e in edges]}
+    if nodes or edges:
+        return {"nodes": [dict(n) for n in nodes], "edges": [dict(e) for e in edges]}
+
+    from . import db
+
+    templates = [
+        {
+            "type": "Template",
+            "id": t["id"],
+            "status": None,
+            "score": None,
+            "version": t["version"],
+        }
+        for t in db.latest_templates()
+    ]
+    prompts = [
+        {
+            "type": "Prompt",
+            "id": p["id"],
+            "status": p["status"],
+            "score": p["score"],
+            "version": p["version"],
+        }
+        for p in db.latest_prompts()
+    ]
+    fallback_edges = [
+        {
+            "source": p["id"],
+            "target": p["template_id"],
+            "type": "USES_TEMPLATE",
+            "pinned": p["pinned_template_version"],
+        }
+        for p in db.latest_prompts()
+        if p["template_id"]
+    ]
+    return {"nodes": templates + prompts, "edges": fallback_edges}

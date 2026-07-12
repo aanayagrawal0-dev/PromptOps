@@ -1,11 +1,19 @@
 """FastAPI surface. Only the endpoints the demo actually needs -- CRUD for
 prompts/templates is left as an exercise (standard, uninteresting)."""
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from . import db, gate, graph, seed as seed_module
 
 app = FastAPI(title="PromptOps core")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class TemplateEdit(BaseModel):
