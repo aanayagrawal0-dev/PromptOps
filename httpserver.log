@@ -1,0 +1,27 @@
+::1 - - [13/Jul/2026 16:05:11] "GET /landing.html HTTP/1.1" 200 -
+::1 - - [13/Jul/2026 16:05:11] "GET /assets/api.js HTTP/1.1" 200 -
+::1 - - [13/Jul/2026 16:05:11] "GET /console.html HTTP/1.1" 200 -
+::1 - - [13/Jul/2026 16:05:11] "GET /dashboard.html HTTP/1.1" 200 -
+::1 - - [13/Jul/2026 16:05:11] "GET /new-template.html HTTP/1.1" 200 -
+::1 - - [13/Jul/2026 16:05:29] "GET /console.html HTTP/1.1" 200 -
+::1 - - [13/Jul/2026 16:05:30] "GET /assets/brutalist.css HTTP/1.1" 200 -
+::1 - - [13/Jul/2026 16:05:30] "GET /assets/api.js HTTP/1.1" 200 -
+::1 - - [13/Jul/2026 16:05:30] code 404, message File not found
+::1 - - [13/Jul/2026 16:05:30] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [13/Jul/2026 16:06:06] "GET /dashboard.html HTTP/1.1" 200 -
+::1 - - [13/Jul/2026 16:06:06] "GET /assets/api.js HTTP/1.1" 304 -
+::1 - - [13/Jul/2026 16:06:06] code 404, message File not found
+::1 - - [13/Jul/2026 16:06:06] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [13/Jul/2026 16:06:08] "GET /console.html HTTP/1.1" 304 -
+::1 - - [13/Jul/2026 16:06:08] code 404, message File not found
+::1 - - [13/Jul/2026 16:06:08] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [13/Jul/2026 16:06:13] code 404, message File not found
+::1 - - [13/Jul/2026 16:06:13] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [13/Jul/2026 16:06:14] code 404, message File not found
+::1 - - [13/Jul/2026 16:06:14] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [13/Jul/2026 16:06:15] "GET /onboarding.html HTTP/1.1" 200 -
+::1 - - [13/Jul/2026 16:06:15] code 404, message File not found
+::1 - - [13/Jul/2026 16:06:15] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [13/Jul/2026 16:06:28] "GET /assets/api.js HTTP/1.1" 304 -
+::1 - - [13/Jul/2026 16:06:28] code 404, message File not found
+::1 - - [13/Jul/2026 16:06:28] "GET /favicon.ico HTTP/1.1" 404 -

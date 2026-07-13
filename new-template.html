@@ -55,26 +55,36 @@
     <div class="mb-6">
       <span class="font-mono text-xs uppercase text-ink/50">Console &rarr; Templates</span>
       <h1 class="font-display text-2xl font-bold mt-1">Register New Template</h1>
-      <p class="text-sm text-ink/70 mt-2">Registers a template in the console's tracked set so its downstream dependents get scored on every shared-partial edit. This demo runs entirely client-side — nothing is written to a database.</p>
+      <p class="text-sm text-ink/70 mt-2">Registers a prompt in the console's tracked set. It's pinned to the shared template it depends on and scored on every edit — so it shows up in the console and in the dependency blast radius from now on.</p>
     </div>
 
     <div class="card-brutal shadow-brutal-accent p-8">
       <form id="template-form" onsubmit="return false">
         <div class="space-y-5">
           <div class="flex flex-col gap-1">
-            <label class="font-mono text-xs uppercase font-bold text-ink/60">Template Name</label>
+            <label class="font-mono text-xs uppercase font-bold text-ink/60">Prompt Name</label>
             <input class="input-brutal px-4 py-2 text-sm w-full" id="tpl-name" placeholder="e.g. retirement_planner" type="text" required/>
           </div>
           <div class="flex flex-col gap-1">
-            <label class="font-mono text-xs uppercase font-bold text-ink/60">Parent Template</label>
+            <label class="font-mono text-xs uppercase font-bold text-ink/60">Depends On (shared template)</label>
             <select class="input-brutal px-4 py-2 text-sm w-full" id="tpl-parent">
-              <option value="compliance_disclaimer">compliance_disclaimer</option>
-              <option value="none">None — standalone template</option>
+              <option value="none">None — standalone prompt</option>
             </select>
           </div>
           <div class="flex flex-col gap-1">
-            <label class="font-mono text-xs uppercase font-bold text-ink/60">Initial Content</label>
-            <textarea class="input-brutal px-4 py-2 text-sm w-full leading-relaxed" id="tpl-content" placeholder="Enter the prompt template body..." rows="5"></textarea>
+            <label class="font-mono text-xs uppercase font-bold text-ink/60">Prompt Body</label>
+            <textarea class="input-brutal px-4 py-2 text-sm w-full leading-relaxed" id="tpl-content" placeholder="You are a helpful assistant. {compliance_disclaimer}" rows="4"></textarea>
+            <span class="text-[10px] text-ink/50 mt-1">Reference the shared template with <span class="font-mono">{template_name}</span> so its text is spliced in at runtime.</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="font-mono text-xs uppercase font-bold text-ink/60">Required Phrase <span class="text-ink/40 normal-case">(optional eval check)</span></label>
+            <input class="input-brutal px-4 py-2 text-sm w-full" id="tpl-check" placeholder="e.g. not financial advice" type="text"/>
+            <span class="text-[10px] text-ink/50 mt-1">If the resolved output stops containing this phrase, the prompt's score drops — that's how a template edit can break it.</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="font-mono text-xs uppercase font-bold text-ink/60">Sample Input <span class="text-ink/40 normal-case">(what it's actually tested with)</span></label>
+            <input class="input-brutal px-4 py-2 text-sm w-full" id="tpl-sample-input" placeholder="e.g. Should I buy TCS stock?" type="text"/>
+            <span class="text-[10px] text-ink/50 mt-1">The prompt is run against this exact input before scoring. Leave it blank and the check above is tested against a generic filler question — a real check needs a real input to mean anything.</span>
           </div>
         </div>
         <div class="mt-8 flex items-center justify-between">
@@ -87,13 +97,13 @@
       </form>
 
       <div class="result-hidden mt-2" id="result-panel">
-        <div class="bg-good-light border-ink shadow-brutal-good p-6">
+        <div class="border-ink shadow-brutal-good p-6" id="result-card">
           <div class="flex items-start gap-3">
-            <span class="material-symbols-outlined text-good-dark">check_circle</span>
-            <div class="flex-1">
-              <span class="font-mono text-xs font-bold text-good-dark uppercase tracking-widest">Template Registered (Local Session)</span>
-              <p class="text-sm text-ink/80 mt-2">This is a static demo, so nothing was written to a database — but here's exactly what the console would track:</p>
-              <pre id="tpl-output" class="font-mono text-sm mt-3 p-3 bg-paper border-ink-thin overflow-x-auto"></pre>
+            <span class="material-symbols-outlined shrink-0" id="result-icon">check_circle</span>
+            <div class="flex-1 min-w-0">
+              <span class="font-mono text-xs font-bold uppercase tracking-widest" id="result-title">Prompt Registered</span>
+              <p class="text-sm text-ink/80 mt-2" id="result-msg">Saved to the backend. Here's what the console now tracks:</p>
+              <pre id="tpl-output" class="font-mono text-sm mt-3 p-3 bg-paper border-ink-thin whitespace-pre-wrap break-words max-h-96 overflow-y-auto"></pre>
             </div>
           </div>
         </div>
@@ -114,26 +124,98 @@
   </div>
 </footer>
 
+<script src="assets/api.js"></script>
 <script>
-  document.getElementById('template-form').addEventListener('submit', () => {
-    const name = document.getElementById('tpl-name').value.trim();
-    if (!name) return;
-    const parent = document.getElementById('tpl-parent').value;
-    const content = document.getElementById('tpl-content').value.trim() || '(empty — fill in before use)';
-    const id = 'tpl_' + Math.random().toString(36).slice(2, 8);
+  const parentSelect = document.getElementById('tpl-parent');
 
-    const lines = [
-      `id: ${id}`,
-      `name: ${name}`,
-      `parent: ${parent}`,
-      `status: HEALTHY`,
-      `content: "${content.length > 60 ? content.slice(0, 60) + '…' : content}"`,
-    ].join('\n');
+  // Populate the "depends on" dropdown with the templates the backend actually
+  // knows about (distinct from the tracked prompts), so you can only depend on
+  // a real one.
+  async function loadTemplates() {
+    try {
+      const data = await ensureSeeded();
+      const templates = [...new Set(data.prompts.map(p => p.template_id).filter(Boolean))];
+      templates.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t; opt.textContent = t;
+        parentSelect.appendChild(opt);
+      });
+    } catch (e) {
+      // Backend down: leave just the "None" option; submit will surface the error.
+    }
+  }
 
-    document.getElementById('tpl-output').textContent = lines;
+  function showResult({ ok, title, msg, body }) {
+    document.getElementById('result-icon').textContent = ok ? 'check_circle' : 'error';
+    document.getElementById('result-icon').className = `material-symbols-outlined ${ok ? 'text-good-dark' : 'text-bad-dark'}`;
+    document.getElementById('result-card').className = `border-ink p-6 ${ok ? 'bg-good-light shadow-brutal-good' : 'bg-bad-light shadow-brutal-bad'}`;
+    document.getElementById('result-title').textContent = title;
+    document.getElementById('result-title').className = `font-mono text-xs font-bold uppercase tracking-widest ${ok ? 'text-good-dark' : 'text-bad-dark'}`;
+    document.getElementById('result-msg').textContent = msg;
+    document.getElementById('tpl-output').textContent = body;
     document.getElementById('template-form').classList.add('result-hidden');
     document.getElementById('result-panel').classList.remove('result-hidden');
+  }
+
+  document.getElementById('template-form').addEventListener('submit', async () => {
+    const name = document.getElementById('tpl-name').value.trim();
+    if (!name) return;
+    const parent = parentSelect.value;
+    const content = document.getElementById('tpl-content').value.trim();
+    const check = document.getElementById('tpl-check').value.trim();
+    const sampleInput = document.getElementById('tpl-sample-input').value.trim();
+
+    const payload = {
+      prompt_id: name,
+      body: content,
+      template_id: parent === 'none' ? null : parent,
+      must_contain: check ? [check] : [],
+      sample_input: sampleInput,
+    };
+
+    // Live mode makes real model + judge calls here -- this is not instant.
+    // Without this, the button looks identical whether it's idle or working,
+    // which reads as "broken" and invites navigating away mid-request (which
+    // cancels the fetch and silently drops the registration).
+    const submitBtn = document.querySelector('#template-form button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span> Scoring against live model…';
+
+    try {
+      const res = await apiPost('/prompts', payload);
+      const lineList = [
+        `id: ${res.id}`,
+        `version: v${res.version}`,
+        `depends_on: ${res.template_id ?? '(standalone)'}`,
+        `score: ${Number(res.score).toFixed(2)}`,
+        `status: ${res.status.toUpperCase()}`,
+      ];
+      // Show what it was actually tested against and what the model actually
+      // said -- so the badge isn't something you just have to trust.
+      if (res.sample_input) {
+        lineList.push('', `tested with: "${res.sample_input}"`, `model said: ${res.model_output ?? '(no output)'}`);
+      }
+      (res.warnings || []).forEach(w => lineList.push('', `⚠ ${w}`));
+      const lines = lineList.join('\n');
+      showResult({
+        ok: res.status === 'green',
+        title: res.status === 'green' ? 'Prompt Registered' : 'Registered — Failing Eval',
+        msg: res.status === 'green'
+          ? 'Saved to the backend. Open the console to see it in the tracked set:'
+          : 'Saved, but it fails its eval check against the current template text:',
+        body: lines,
+      });
+    } catch (e) {
+      showResult({
+        ok: false,
+        title: 'Registration Failed',
+        msg: `Couldn't reach the backend at ${API_BASE}. Start it with: uvicorn promptops.main:app --reload`,
+        body: String(e.message || e),
+      });
+    }
   });
+
+  loadTemplates();
 </script>
 </body>
 </html>
