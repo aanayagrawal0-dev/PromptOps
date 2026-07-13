@@ -27,6 +27,7 @@
 </script>
 <style>
   .graph-line { stroke: var(--ink); stroke-width: 2; opacity: 0.25; }
+  .graph-line-consumer { stroke: #7c3aed; stroke-dasharray: 4 3; opacity: 0.35; }
   .signal-dot { fill: var(--accent); filter: drop-shadow(0 0 4px rgba(61, 90, 254, 0.6)); }
   .active-nav-item { background: var(--ink); color: var(--paper); }
   .nav-item:hover:not(.active-nav-item) { background: var(--paper-dim); }
@@ -98,76 +99,36 @@
         <div class="card-brutal flex-1 relative flex flex-col overflow-hidden">
           <div class="border-ink-b p-4 flex items-center justify-between bg-ink text-paper">
             <span class="font-mono text-xs font-bold">GRAPH_ENGINE_V2 :: LIVE_VIEW</span>
-            <span class="font-mono text-[11px] uppercase text-paper/60">USE_LIVE: false</span>
+            <span class="font-mono text-[11px] uppercase text-paper/60" id="liveLabel">CONNECTING...</span>
           </div>
-          <div class="flex-1 relative bg-paper pattern-dots">
-            <svg class="w-full h-full" id="dependencyGraph" viewBox="0 0 800 600">
-              <!-- Connection Lines -->
-              <g id="lines">
-                <line class="graph-line" x1="400" x2="150" y1="80" y2="280"></line>
-                <line class="graph-line" x1="400" x2="325" y1="80" y2="280"></line>
-                <line class="graph-line" x1="400" x2="500" y1="80" y2="280"></line>
-                <line class="graph-line" x1="400" x2="675" y1="80" y2="280"></line>
-              </g>
+          <div class="flex-1 relative bg-paper pattern-dots overflow-auto">
+            <svg class="block" id="dependencyGraph" viewBox="0 0 800 600" width="800" height="600">
+              <!-- Connection Lines: drawn dynamically in JS, one per prompt
+                   that actually depends on the template below, plus one per
+                   prompt-to-pipeline link in the 3rd tier -- not a fixed
+                   set, so it stays correct as prompts/pipelines change. -->
+              <g id="lines"></g>
               <!-- Signal Animation Element -->
               <circle class="signal-dot opacity-0" id="signalDot" r="5"></circle>
-              <!-- Template Node -->
+              <!-- Template Node: position set dynamically in JS (renderGraph)
+                   so it stays centered over its dependents row even as the
+                   graph grows wider than the default 800 units and the
+                   container starts scrolling instead of shrinking every
+                   node to fit. -->
               <g class="cursor-pointer" id="node-template" transform="translate(325, 40)">
                 <rect fill="white" height="60" rx="0" stroke="#3d5afe" stroke-width="3" width="150"></rect>
                 <text class="font-mono text-[12px] font-bold" fill="#0a0a0a" text-anchor="middle" x="75" y="25">compliance_disclaimer</text>
                 <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.5" text-anchor="middle" x="75" y="45">(parent_template)</text>
               </g>
-              <!-- stock_advisor -->
-              <g class="node-item" id="node-stock_advisor" transform="translate(75, 280)">
-                <rect fill="white" height="90" rx="0" stroke="#0a0a0a" stroke-width="2" width="150"></rect>
-                <text class="font-mono text-[11px]" fill="#0a0a0a" text-anchor="middle" x="75" y="25">stock_advisor</text>
-                <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">1.00</tspan></text>
-                <g transform="translate(20, 60)">
-                  <rect class="status-bg fill-emerald-100" height="18" rx="0" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
-                  <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
-                </g>
-              </g>
-              <!-- fund_summary -->
-              <g class="node-item" id="node-fund_summary" transform="translate(250, 280)">
-                <rect fill="white" height="90" rx="0" stroke="#0a0a0a" stroke-width="2" width="150"></rect>
-                <text class="font-mono text-[11px]" fill="#0a0a0a" text-anchor="middle" x="75" y="25">fund_summary</text>
-                <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">1.00</tspan></text>
-                <g transform="translate(20, 60)">
-                  <rect class="status-bg fill-emerald-100" height="18" rx="0" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
-                  <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
-                </g>
-              </g>
-              <!-- sip_explainer -->
-              <g class="node-item" id="node-sip_explainer" transform="translate(425, 280)">
-                <rect fill="white" height="90" rx="0" stroke="#0a0a0a" stroke-width="2" width="150"></rect>
-                <text class="font-mono text-[11px]" fill="#0a0a0a" text-anchor="middle" x="75" y="25">sip_explainer</text>
-                <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">1.00</tspan></text>
-                <g transform="translate(20, 60)">
-                  <rect class="status-bg fill-emerald-100" height="18" rx="0" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
-                  <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
-                </g>
-              </g>
-              <!-- market_news -->
-              <g class="node-item" id="node-market_news" transform="translate(600, 280)">
-                <rect fill="white" height="90" rx="0" stroke="#0a0a0a" stroke-width="2" width="150"></rect>
-                <text class="font-mono text-[11px]" fill="#0a0a0a" text-anchor="middle" x="75" y="25">market_news</text>
-                <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">1.00</tspan></text>
-                <g transform="translate(20, 60)">
-                  <rect class="status-bg fill-emerald-100" height="18" rx="0" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
-                  <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
-                </g>
-              </g>
-              <!-- greeting_bot -->
-              <g class="node-item" id="node-greeting_bot" transform="translate(337, 450)">
-                <rect fill="white" height="90" rx="0" stroke="#0a0a0a" stroke-width="2" width="150"></rect>
-                <text class="font-mono text-[11px]" fill="#0a0a0a" text-anchor="middle" x="75" y="25">greeting_bot</text>
-                <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">1.00</tspan></text>
-                <g transform="translate(20, 60)">
-                  <rect class="status-bg fill-emerald-100" height="18" rx="0" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
-                  <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
-                </g>
-              </g>
-              <line class="graph-line" x1="400" x2="412" y1="80" y2="450"></line>
+              <!-- Prompt nodes: built dynamically in JS from whatever
+                   /prompts actually returns, so a freshly-registered prompt
+                   gets a node here too, not just the originally-seeded 5. -->
+              <g id="nodesLayer"></g>
+              <!-- Pipeline nodes: the 3rd tier -- real downstream consumers
+                   that call one or more of the prompts above. Status is
+                   never stored, only ever painted from whatever /pipelines
+                   just computed live off the prompts' current state. -->
+              <g id="pipelinesLayer"></g>
             </svg>
           </div>
           <!-- Regression Callout -->
@@ -235,6 +196,19 @@
   </main>
 </div>
 
+<!-- Node detail panel: what a node click reveals -- the actual prompt body,
+     which template it's pinned to, and the real eval checks it's scored
+     against. Not just the score badge. -->
+<div class="hidden fixed inset-0 bg-black/40 z-[60] flex items-center justify-center p-4" id="nodeDetailOverlay">
+  <div class="card-brutal max-w-lg w-full bg-paper max-h-[85vh] flex flex-col">
+    <div class="border-ink-b p-4 flex items-center justify-between bg-ink text-paper shrink-0">
+      <span class="font-mono text-xs font-bold uppercase" id="detailTitle">prompt_id</span>
+      <button class="material-symbols-outlined cursor-pointer" id="detailClose">close</button>
+    </div>
+    <div class="p-5 space-y-4 font-mono text-xs overflow-y-auto" id="detailBody"></div>
+  </div>
+</div>
+
 <!-- Footer -->
 <footer class="bg-ink text-paper border-ink-t py-3 px-6 md:px-10 w-full flex flex-col md:flex-row justify-between items-center z-50">
   <span class="font-mono text-[11px] uppercase tracking-tighter text-paper/60">&copy; 2026 PromptOps Technical Systems</span>
@@ -245,132 +219,622 @@
   </div>
 </footer>
 
+<script src="assets/api.js"></script>
 <script>
-  const nodePositions = {
-    template: { x: 400, y: 70 },
-    stock_advisor: { x: 150, y: 325 },
-    fund_summary: { x: 325, y: 325 },
-    sip_explainer: { x: 500, y: 325 },
-    market_news: { x: 675, y: 325 },
-    greeting_bot: { x: 412, y: 495 }
-  };
+  const TEMPLATE_ID = "compliance_disclaimer";
+  const NODE_W = 150, NODE_H = 90, GAP = 30;
+  const TEMPLATE_NODE_W = 150;
+  const MIN_GRAPH_WIDTH = 800;
+  const ROW_GAP = 100; // vertical space between one tier's row and the next
 
-  const BREAKING_CONTENT = "WARNING: System-wide override enabled. This template now includes restrictive legal phrasing that may conflict with conversational tones and specific financial terminology. Ensure all downstream prompts are compatible with strict clause 4B.1.";
-  const DEFAULT_CONTENT = "Standard regulatory disclaimer for all financial advisory products. Ensure neutral tone and high clarity.";
+  // Same worst-of ranking main.py's _pipeline_status uses server-side. This
+  // client copy exists only so a pipeline's badge can update in lockstep
+  // with the decision-log animation (which walks prompt-by-prompt updating
+  // the local allPrompts cache) without an extra round trip per step -- the
+  // next real fetch of /pipelines (every refreshAll()) always re-derives
+  // this from the backend, so it can't drift for long.
+  const STATUS_RANK = { green: 0, amber: 1, red: 2 };
 
-  document.getElementById('templateContent').value = DEFAULT_CONTENT;
+  // Center point of every node currently on screen, keyed by prompt id (plus
+  // "template") -- the signal-dot animation flies between these. Rebuilt by
+  // renderGraph() every time /prompts changes, not hardcoded, so it's always
+  // correct no matter how many prompts actually exist.
+  let nodePositions = { template: { x: 400, y: 70 } };
+  // Last full /pipelines payload, keyed by id -- what a pipeline node click
+  // reads from, and what repaintPipelines() recomputes badges against.
+  let allPipelines = {};
+  const svgEl = document.getElementById('dependencyGraph');
+  const templateNodeEl = document.getElementById('node-template');
+  // Prefilled by "Load Breaking Edit". This only fills the textarea -- the
+  // backend does the real scoring/gating when you hit Apply.
+  const BREAKING_CONTENT = "Respond in a friendly, professional tone.";
 
+  const textarea = document.getElementById('templateContent');
   const applyBtn = document.getElementById('applyEditBtn');
   const resetBtn = document.getElementById('resetBtn');
   const loadBreakingBtn = document.getElementById('loadBreakingBtn');
   const signalDot = document.getElementById('signalDot');
   const log = document.getElementById('decisionLog');
   const hindiBox = document.getElementById('regressionExplain');
+  const liveLabel = document.getElementById('liveLabel');
+  const detailOverlay = document.getElementById('nodeDetailOverlay');
+  const detailTitle = document.getElementById('detailTitle');
+  const detailBody = document.getElementById('detailBody');
 
-  loadBreakingBtn.addEventListener('click', () => {
-    document.getElementById('templateContent').value = BREAKING_CONTENT;
-  });
+  const fmt = (n) => (n === null || n === undefined ? '--' : Number(n).toFixed(2));
+  const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
 
-  resetBtn.addEventListener('click', () => {
+  // Last full /prompts payload, keyed by id -- what a node click reads from.
+  // Kept in sync (score/status only) as decisions come in, so the panel
+  // never shows a stale score after an edit.
+  let allPrompts = {};
+
+  function showNodeDetail(id) {
+    const p = allPrompts[id];
+    if (!p) return;
+    const rows = p.dataset || [];
+    const checks = rows.flatMap(r => [
+      ...(r.checks?.must_contain || []).map(c => `must include: "${c}"`),
+      ...(r.checks?.must_not_contain || []).map(c => `must NOT include: "${c}"`),
+    ]);
+    const ui = STATUS_UI[p.status] || STATUS_UI.green;
+    detailTitle.textContent = id;
+    detailBody.innerHTML = `
+      <div class="grid grid-cols-2 gap-2">
+        <div><span class="text-ink/40">version</span><br>v${p.version}</div>
+        <div><span class="text-ink/40">status</span><br>${ui.label} (score ${fmt(p.score)})</div>
+        <div class="col-span-2"><span class="text-ink/40">depends on</span><br>${
+          p.template_id ? `${escapeHtml(p.template_id)} @ v${p.pinned_template_version ?? '?'}` : '(standalone, no shared template)'
+        }</div>
+      </div>
+      <div>
+        <span class="text-ink/40 block mb-1">prompt body <span class="text-ink/30 normal-case">(editable -- re-scores against a real live model call on save)</span></span>
+        <textarea id="editBodyInput" class="input-brutal w-full text-xs font-mono p-2 leading-relaxed" rows="6">${escapeHtml(p.body)}</textarea>
+        <button id="saveBodyBtn" class="btn-brutal btn-brutal-accent w-full py-2 mt-2 font-mono text-[11px] uppercase font-bold">Save &amp; Re-evaluate</button>
+        <p id="editResultMsg" class="text-[11px] mt-2"></p>
+      </div>
+      <div>
+        <span class="text-ink/40 block mb-1">eval checks (what its output is scored against)</span>
+        ${checks.length
+          ? checks.map(c => `<div>&bull; ${escapeHtml(c)}</div>`).join('')
+          : '<div class="text-ink/30 italic">none configured</div>'}
+      </div>
+      <div class="flex flex-col gap-2 pt-1">
+        ${p.template_id ? `<button id="unlinkBtn" class="btn-brutal w-full py-2 font-mono text-[11px] uppercase font-bold">Unlink from ${escapeHtml(p.template_id)}</button>` : ''}
+        <button id="deleteBtn" class="btn-brutal w-full py-2 font-mono text-[11px] uppercase font-bold bg-bad-light text-bad-dark hover:bg-bad hover:text-paper transition-colors">Delete Prompt</button>
+      </div>
+    `;
+    detailOverlay.classList.remove('hidden');
+
+    document.getElementById('saveBodyBtn').addEventListener('click', () => saveBodyEdit(id));
+    const unlinkBtn = document.getElementById('unlinkBtn');
+    if (unlinkBtn) {
+      unlinkBtn.addEventListener('click', () => unlinkPrompt(id));
+    }
+    document.getElementById('deleteBtn').addEventListener('click', () => deletePrompt(id));
+  }
+
+  // Edits a prompt's own body directly and asks the backend to actually
+  // re-run it against a real model and re-score it against its existing
+  // checks -- not a client-side guess. If the edit breaks it, the backend
+  // auto-rolls the body back to the last-good version and returns that
+  // outcome, which this surfaces instead of silently pretending it saved.
+  async function saveBodyEdit(id) {
+    const btn = document.getElementById('saveBodyBtn');
+    const msg = document.getElementById('editResultMsg');
+    const newBody = document.getElementById('editBodyInput').value;
+    btn.disabled = true;
+    btn.textContent = 'Scoring against live model...';
+    msg.textContent = '';
+    try {
+      const res = await apiPost(`/prompts/${id}/edit`, { body: newBody });
+      await refreshAll();
+      showNodeDetail(id);
+      const resultMsg = document.getElementById('editResultMsg');
+      const headline = res.rolled_back
+        ? `Broke it (score ${fmt(res.score)}) -- auto-rolled back to the previous body.`
+        : `Saved -- re-evaluated as ${(STATUS_UI[res.status] || STATUS_UI.green).label} (score ${fmt(res.score)}).`;
+      // Show the actual model output for the real test input that scored
+      // it -- so a score you don't trust can be checked directly instead of
+      // staying a mystery. Note: this is only one of possibly several
+      // dataset rows; the score itself still reflects all of them.
+      const outputHtml = res.sample_input
+        ? `<div class="mt-2 text-ink/70 normal-case font-normal">
+             tested with: "${escapeHtml(res.sample_input)}"${res.dataset_row_count > 1 ? ' (1 of ' + res.dataset_row_count + ' test inputs shown)' : ''}
+             <pre class="whitespace-pre-wrap break-words bg-paper-alt border-ink-thin p-2 mt-1">${escapeHtml(res.model_output) || '(no output)'}</pre>
+           </div>`
+        : '';
+      resultMsg.className = `text-[11px] mt-2 font-bold ${res.rolled_back ? 'text-bad-dark' : 'text-good-dark'}`;
+      resultMsg.innerHTML = `${headline}${outputHtml}`;
+    } catch (e) {
+      alert(`Save failed: ${e.message || e}`);
+      btn.disabled = false;
+      btn.textContent = 'Save & Re-evaluate';
+    }
+  }
+
+  // Removes a prompt's dependency on its shared template (backend call),
+  // then refreshes the graph and re-opens the panel so it reflects the new
+  // (standalone) state instead of leaving stale data on screen.
+  async function unlinkPrompt(id) {
+    const btn = document.getElementById('unlinkBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Unlinking...'; }
+    try {
+      await apiPost(`/prompts/${id}/unlink`);
+      await refreshAll();
+      showNodeDetail(id);
+    } catch (e) {
+      alert(`Unlink failed: ${e.message || e}`);
+      if (btn) { btn.disabled = false; btn.textContent = `Unlink from ${allPrompts[id]?.template_id ?? 'template'}`; }
+    }
+  }
+
+  // Permanently removes a prompt (all versions) -- separate from Unlink,
+  // which only drops the template dependency and keeps the prompt itself.
+  // Any pipeline still listing this prompt isn't silently fixed up -- the
+  // next /pipelines fetch will honestly report it under missing_prompt_ids,
+  // same as a real production config referencing a prompt that got deleted.
+  async function deletePrompt(id) {
+    const sure = confirm(`Permanently delete "${id}"? This removes every version and can't be undone.`);
+    if (!sure) return;
+    const btn = document.getElementById('deleteBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Deleting...'; }
+    try {
+      await apiDelete(`/prompts/${id}`);
+      delete allPrompts[id];
+      detailOverlay.classList.add('hidden');
+      await refreshAll();
+    } catch (e) {
+      alert(`Delete failed: ${e.message || e}`);
+      if (btn) { btn.disabled = false; btn.textContent = 'Delete Prompt'; }
+    }
+  }
+
+  // Pipeline (3rd tier) node detail -- reuses the same overlay as a prompt
+  // node, since it's the same "click a node, see what it actually is"
+  // pattern: which prompts it calls, each one's REAL current status (not
+  // just the pipeline's rolled-up badge), and which one (if any) is the
+  // reason the pipeline itself isn't green.
+  function showPipelineDetail(id) {
+    const pl = allPipelines[id];
+    if (!pl) return;
+    const rows = pl.prompt_ids.map(pid => {
+      const p = allPrompts[pid];
+      const ui = p ? (STATUS_UI[p.status] || STATUS_UI.green) : null;
+      const isWorst = pid === pl.worst_prompt;
+      return `<div class="flex items-center justify-between ${isWorst ? 'text-bad-dark font-bold' : ''}">
+        <span>${escapeHtml(pid)}${!p ? ' <span class="text-ink/40 italic">(deleted)</span>' : ''}</span>
+        ${p ? `<span class="badge-brutal bg-${ui.color}-100 text-${ui.color}-700 px-1.5 py-0.5">${ui.label}</span>` : ''}
+      </div>`;
+    }).join('');
+    const ui = STATUS_UI[pl.status] || STATUS_UI.green;
+    detailTitle.textContent = pl.name || id;
+    detailBody.innerHTML = `
+      <div class="grid grid-cols-2 gap-2">
+        <div><span class="text-ink/40">type</span><br>downstream pipeline</div>
+        <div><span class="text-ink/40">status</span><br>${ui.label} (avg score ${fmt(pl.avg_score)})</div>
+      </div>
+      <div>
+        <span class="text-ink/40 block mb-1">calls these prompts <span class="text-ink/30 normal-case">(status shown is each prompt's own, live)</span></span>
+        <div class="space-y-1 mt-1">${rows}</div>
+        ${pl.missing_prompt_ids && pl.missing_prompt_ids.length
+          ? `<p class="text-bad-dark mt-2">references deleted prompt(s): ${pl.missing_prompt_ids.map(escapeHtml).join(', ')}</p>`
+          : ''}
+      </div>
+      <div class="flex flex-col gap-2 pt-1">
+        <button id="deletePipelineBtn" class="btn-brutal w-full py-2 font-mono text-[11px] uppercase font-bold bg-bad-light text-bad-dark hover:bg-bad hover:text-paper transition-colors">Delete Pipeline</button>
+      </div>
+    `;
+    detailOverlay.classList.remove('hidden');
+    document.getElementById('deletePipelineBtn').addEventListener('click', () => deletePipeline(id));
+  }
+
+  async function deletePipeline(id) {
+    const sure = confirm(`Permanently delete pipeline "${id}"? This doesn't touch the prompts it calls.`);
+    if (!sure) return;
+    const btn = document.getElementById('deletePipelineBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Deleting...'; }
+    try {
+      await apiDelete(`/pipelines/${id}`);
+      delete allPipelines[id];
+      detailOverlay.classList.add('hidden');
+      await refreshAll();
+    } catch (e) {
+      alert(`Delete failed: ${e.message || e}`);
+      if (btn) { btn.disabled = false; btn.textContent = 'Delete Pipeline'; }
+    }
+  }
+
+  // The single real source of truth refresh: re-pulls both tiers from the
+  // backend and re-renders the whole graph from them. Every action that can
+  // change a prompt's status (edit, unlink, delete, template-edit rollback)
+  // or a pipeline's membership goes through this instead of patching the UI
+  // by hand, so what's on screen can never drift from what the backend
+  // actually has.
+  async function refreshAll() {
+    const [promptsData, pipelinesData] = await Promise.all([
+      apiGet('/prompts'), apiGet('/pipelines'),
+    ]);
+    renderGraph(promptsData.prompts, pipelinesData.pipelines);
+    return { prompts: promptsData.prompts, pipelines: pipelinesData.pipelines };
+  }
+
+  document.getElementById('detailClose').addEventListener('click', () => detailOverlay.classList.add('hidden'));
+  detailOverlay.addEventListener('click', (e) => { if (e.target === detailOverlay) detailOverlay.classList.add('hidden'); });
+
+  // ---- initial load: pull real state from the backend --------------------
+  async function init() {
+    try {
+      const data = await ensureSeeded();
+      const pipelinesData = await apiGet('/pipelines');
+      renderGraph(data.prompts, pipelinesData.pipelines);
+      const tpl = await apiGet(`/templates/${TEMPLATE_ID}`);
+      textarea.value = tpl.text || '';
+      liveLabel.textContent = 'USE_LIVE: true';
+    } catch (e) {
+      liveLabel.textContent = 'BACKEND OFFLINE';
+      log.innerHTML = `<div class="text-bad-dark text-xs font-mono p-3 border-ink-thin bg-bad-light leading-relaxed">
+        Can't reach the backend at ${API_BASE}.<br><br>Start it with:<br>
+        <span class="font-bold">uvicorn promptops.main:app --reload</span></div>`;
+    }
+  }
+
+  // Every prompt the backend tracks gets a node -- dependents of the shown
+  // template in a row under it (with a line back to it, since that's the
+  // real relationship the demo edits), everything else (standalone prompts,
+  // or ones pointed at a different template) in a row below that. Below
+  // that, every registered pipeline (the 3rd tier) gets its own node, with a
+  // line to every prompt it actually calls. This is what makes a freshly-
+  // registered prompt or pipeline actually appear here instead of only in
+  // the console table.
+  function renderGraph(prompts, pipelines) {
+    pipelines = pipelines || Object.values(allPipelines);
+    prompts.forEach(p => { allPrompts[p.id] = p; });
+    pipelines.forEach(pl => { allPipelines[pl.id] = pl; });
+
+    const nodesLayer = document.getElementById('nodesLayer');
+    const pipelinesLayer = document.getElementById('pipelinesLayer');
+    const linesLayer = document.getElementById('lines');
+    const dependents = prompts.filter(p => p.template_id === TEMPLATE_ID);
+    const standalone = prompts.filter(p => p.template_id !== TEMPLATE_ID);
+
+    // Grow the SVG's own coordinate space (viewBox + explicit width/height)
+    // to fit however many nodes actually exist across all three tiers,
+    // instead of squeezing them into a fixed canvas. The container has
+    // overflow: auto, so once the graph is bigger than the visible card it
+    // scrolls -- nodes stay full-size and readable, nothing gets clipped.
+    const rowWidth = (list) => list.length
+      ? list.length * NODE_W + Math.max(0, list.length - 1) * GAP
+      : 0;
+    const contentWidth = Math.max(rowWidth(dependents), rowWidth(standalone), rowWidth(pipelines)) + 100;
+    const graphWidth = Math.max(MIN_GRAPH_WIDTH, contentWidth);
+    const centerX = graphWidth / 2;
+
+    // Prompts row 2 (standalone) only exists if there are any; the
+    // pipelines row always sits ROW_GAP below whichever prompt row is
+    // actually lowest, so it doesn't leave a huge empty gap when every
+    // prompt is a dependent.
+    const promptsBottomY = (standalone.length ? 460 : 280) + NODE_H;
+    const pipelinesY = promptsBottomY + ROW_GAP;
+    const graphHeight = pipelines.length ? pipelinesY + NODE_H + 40 : promptsBottomY + 40;
+
+    svgEl.setAttribute('viewBox', `0 0 ${graphWidth} ${graphHeight}`);
+    svgEl.setAttribute('width', String(graphWidth));
+    svgEl.setAttribute('height', String(graphHeight));
+
+    const topLeft = {};
+    function place(list, y, into) {
+      const totalWidth = rowWidth(list);
+      const startX = centerX - totalWidth / 2;
+      list.forEach((item, i) => { into[item.id] = { x: startX + i * (NODE_W + GAP), y }; });
+    }
+    place(dependents, 280, topLeft);
+    place(standalone, 460, topLeft);
+    const pipelineTopLeft = {};
+    place(pipelines, pipelinesY, pipelineTopLeft);
+
+    // Keep the template node centered above its dependents regardless of
+    // how wide the graph grows.
+    templateNodeEl.setAttribute('transform', `translate(${centerX - TEMPLATE_NODE_W / 2}, 40)`);
+
+    // Drop nodes for prompts/pipelines that no longer exist -- keeps this
+    // correct even if the tracked set ever shrinks, not just grows.
+    const keepPrompts = new Set(prompts.map(p => p.id));
+    nodesLayer.querySelectorAll('.node-item').forEach(el => {
+      const id = el.id.replace('node-', '');
+      if (!keepPrompts.has(id)) el.remove();
+    });
+    const keepPipelines = new Set(pipelines.map(pl => pl.id));
+    pipelinesLayer.querySelectorAll('.pipeline-item').forEach(el => {
+      const id = el.id.replace('pipeline-', '');
+      if (!keepPipelines.has(id)) { el.remove(); delete allPipelines[id]; }
+    });
+
+    nodePositions = { template: { x: centerX, y: 70 } };
+    linesLayer.innerHTML = '';
+
+    prompts.forEach(p => {
+      const pos = topLeft[p.id];
+      let node = document.getElementById(`node-${p.id}`);
+      if (!node) {
+        node = makeNodeEl(p.id);
+        nodesLayer.appendChild(node);
+      }
+      node.setAttribute('transform', `translate(${pos.x}, ${pos.y})`);
+      nodePositions[p.id] = { x: pos.x + NODE_W / 2, y: pos.y + NODE_H / 2 };
+
+      const ui = STATUS_UI[p.status] || STATUS_UI.green;
+      paintNode(p.id, { status: ui.label, score: fmt(p.score), color: ui.color });
+
+      if (p.template_id === TEMPLATE_ID) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('class', 'graph-line');
+        line.setAttribute('x1', String(centerX));
+        line.setAttribute('y1', '100');
+        line.setAttribute('x2', String(pos.x + NODE_W / 2));
+        line.setAttribute('y2', String(pos.y));
+        linesLayer.appendChild(line);
+      }
+    });
+
+    pipelines.forEach(pl => {
+      const pos = pipelineTopLeft[pl.id];
+      let node = document.getElementById(`pipeline-${pl.id}`);
+      if (!node) {
+        node = makePipelineNodeEl(pl.id);
+        pipelinesLayer.appendChild(node);
+      }
+      node.setAttribute('transform', `translate(${pos.x}, ${pos.y})`);
+
+      const ui = STATUS_UI[pl.status] || STATUS_UI.green;
+      paintPipelineNode(pl.id, { status: ui.label, score: fmt(pl.avg_score), color: ui.color });
+
+      // One line per prompt this pipeline actually calls -- the fan-in that
+      // shows a single prompt regression rippling into every real consumer
+      // that depends on it, not just the prompt itself.
+      pl.prompt_ids.forEach(pid => {
+        const from = nodePositions[pid];
+        if (!from) return; // prompt was deleted -- surfaced in the detail panel instead
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('class', 'graph-line graph-line-consumer');
+        line.setAttribute('x1', String(from.x));
+        line.setAttribute('y1', String(pos.y > from.y ? from.y + NODE_H / 2 : from.y - NODE_H / 2));
+        line.setAttribute('x2', String(pos.x + NODE_W / 2));
+        line.setAttribute('y2', String(pos.y));
+        linesLayer.appendChild(line);
+      });
+    });
+  }
+
+  // Builds one prompt node with the same structure/classes the old hardcoded
+  // markup used, so paintNode/animateSignal keep working unmodified. Also
+  // clickable -- opens the detail panel for this prompt (body + checks),
+  // since the score badge alone doesn't say what's actually being run/tested.
+  function makeNodeEl(id) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'node-item cursor-pointer');
+    g.setAttribute('id', `node-${id}`);
+    g.innerHTML = `
+      <rect fill="white" height="${NODE_H}" width="${NODE_W}" stroke="#0a0a0a" stroke-width="2"></rect>
+      <text class="font-mono text-[11px]" fill="#0a0a0a" text-anchor="middle" x="${NODE_W / 2}" y="25">${id}</text>
+      <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">--</tspan></text>
+      <g transform="translate(20, 60)">
+        <rect class="status-bg fill-emerald-100" height="18" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
+        <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
+      </g>`;
+    g.addEventListener('click', () => showNodeDetail(id));
+    return g;
+  }
+
+  // Same shape as makeNodeEl so paintNode() works unmodified (it's keyed by
+  // element id, which we pass as `pipeline-${id}` for this tier) -- just a
+  // violet border and a "PIPELINE" kicker so the tier is visually distinct
+  // from a prompt at a glance, and a subtitle showing its real name.
+  function makePipelineNodeEl(id) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'pipeline-item cursor-pointer');
+    g.setAttribute('id', `pipeline-${id}`);
+    const name = (allPipelines[id] && allPipelines[id].name) || id;
+    g.innerHTML = `
+      <rect fill="white" height="${NODE_H}" width="${NODE_W}" stroke="#7c3aed" stroke-width="2"></rect>
+      <text class="font-mono text-[8px] font-bold" fill="#7c3aed" text-anchor="middle" x="${NODE_W / 2}" y="14">PIPELINE</text>
+      <text class="font-mono text-[10px]" fill="#0a0a0a" text-anchor="middle" x="${NODE_W / 2}" y="28">${escapeHtml(name).slice(0, 20)}</text>
+      <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">--</tspan></text>
+      <g transform="translate(20, 60)">
+        <rect class="status-bg fill-emerald-100" height="18" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
+        <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
+      </g>`;
+    g.addEventListener('click', () => showPipelineDetail(id));
+    return g;
+  }
+
+  loadBreakingBtn.addEventListener('click', () => { textarea.value = BREAKING_CONTENT; });
+  // Actually resets the backend now -- wipes every registered prompt
+  // (including everything created while testing) and reseeds the original
+  // 5-prompt baseline, instead of just reloading the page and leaving all
+  // that data untouched.
+  resetBtn.addEventListener('click', async () => {
+    const sure = confirm(
+      'Reset everything back to the original 5-prompt demo baseline?\n\n' +
+      'This deletes every prompt and template you\'ve registered, including anything you created while testing.'
+    );
+    if (!sure) return;
+    resetBtn.disabled = true;
+    resetBtn.textContent = 'RESETTING...';
+    try {
+      await apiPost('/demo/reset');
+    } catch (e) {
+      alert(`Reset failed: ${e.message || e}`);
+    }
     location.reload();
   });
 
   applyBtn.addEventListener('click', async () => {
-    const isBreaking = document.getElementById('templateContent').value.includes("WARNING");
     applyBtn.disabled = true;
     applyBtn.innerText = "PROCESSING...";
-
     log.innerHTML = '';
     hindiBox.classList.add('hidden');
 
-    const targets = ['stock_advisor', 'fund_summary', 'sip_explainer', 'market_news', 'greeting_bot'];
+    let result;
+    try {
+      result = await apiPost('/templates/edit', {
+        template_id: TEMPLATE_ID,
+        new_text: textarea.value,
+      });
+    } catch (e) {
+      applyBtn.disabled = false;
+      applyBtn.innerText = "APPLY EDIT";
+      log.innerHTML = `<div class="text-bad-dark text-xs font-mono p-2">Request failed: ${e.message}</div>`;
+      return;
+    }
 
-    for (const id of targets) {
-      await animateSignal(id);
-      updateNodeState(id, isBreaking);
+    // Walk the real decisions the gate returned, one node at a time.
+    for (const dec of result.decisions) {
+      await animateSignal(dec.prompt_id);
+      renderDecision(dec);
     }
 
     applyBtn.disabled = false;
     applyBtn.innerText = "APPLY EDIT";
 
-    if (isBreaking) {
-      setTimeout(() => {
-        hindiBox.classList.remove('hidden');
-      }, 500);
+    // Surface the backend's regression explanation (Hindi via Sarvam/mock).
+    const regressed = result.decisions.find(d => d.explanation);
+    if (regressed) {
+      hindiBox.querySelector('p').textContent = regressed.explanation;
+      setTimeout(() => hindiBox.classList.remove('hidden'), 400);
     }
   });
+
+  function renderDecision(dec) {
+    const ui = STATUS_UI[dec.status] || STATUS_UI.green;
+    // Paint the "as-evaluated" state -- this is the dip the gate saw. The
+    // backend has already pinned an auto-rollback candidate back to its last
+    // good template version internally, but the UI deliberately holds here
+    // instead of auto-healing: the broken state stays visible, and healing
+    // only happens when you click "Rollback Available" in the log below.
+    // That makes the fix a visible action instead of something that
+    // happens too fast to actually see.
+    paintNode(dec.prompt_id, { status: ui.label, score: fmt(dec.new_score), color: ui.color });
+    if (allPrompts[dec.prompt_id]) {
+      allPrompts[dec.prompt_id] = { ...allPrompts[dec.prompt_id], score: dec.new_score, status: dec.status };
+    }
+    addToLog(dec);
+    repaintPipelines();
+  }
+
+  // Recomputes and repaints every pipeline's badge from the current client-
+  // side allPrompts cache -- the exact same worst-of formula main.py's
+  // _pipeline_status runs server-side, so a pipeline visibly dips the
+  // instant the decision-log animation shows one of its prompts breaking,
+  // instead of waiting for a full page refresh. The next real refreshAll()
+  // (any edit/unlink/delete, or a plain reload) always re-derives this from
+  // the backend, so this local mirror can't drift for long.
+  function computePipelineStatus(pl) {
+    let worstStatus = 'green', worstPrompt = null;
+    const scores = [];
+    const missing = [];
+    pl.prompt_ids.forEach(pid => {
+      const p = allPrompts[pid];
+      if (!p) { missing.push(pid); return; }
+      scores.push(p.score);
+      const status = p.status || 'green';
+      if (STATUS_RANK[status] > STATUS_RANK[worstStatus]) { worstStatus = status; worstPrompt = pid; }
+    });
+    return {
+      status: worstStatus,
+      worst_prompt: worstPrompt,
+      avg_score: scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null,
+      missing_prompt_ids: missing,
+    };
+  }
+
+  function repaintPipelines() {
+    Object.values(allPipelines).forEach(pl => {
+      const computed = computePipelineStatus(pl);
+      allPipelines[pl.id] = { ...pl, ...computed };
+      const ui = STATUS_UI[computed.status] || STATUS_UI.green;
+      paintPipelineNode(pl.id, { status: ui.label, score: fmt(computed.avg_score), color: ui.color });
+    });
+  }
+
+  // Fires when someone clicks "Rollback Available" -- reveals the recovery
+  // the backend already computed (pinning back to the last-good template
+  // version), on demand instead of automatically.
+  function performRollback(id, prevScore) {
+    paintNode(id, { status: 'HEALTHY', score: fmt(prevScore || 1), color: 'emerald' });
+    updateLogEntry(id, 'PINNED BACK TO LAST GOOD');
+    if (allPrompts[id]) {
+      allPrompts[id] = { ...allPrompts[id], score: prevScore, status: 'green' };
+    }
+    repaintPipelines();
+  }
 
   function animateSignal(targetId) {
     return new Promise(resolve => {
       const target = nodePositions[targetId];
       const start = nodePositions.template;
+      if (!target) { resolve(); return; }
 
       signalDot.setAttribute('cx', start.x);
       signalDot.setAttribute('cy', start.y);
       signalDot.classList.remove('opacity-0');
 
-      let progress = 0;
       const duration = 400; // ms
       const startTime = performance.now();
 
+      // requestAnimationFrame is throttled to ~0 in a backgrounded tab, which
+      // would leave this promise unresolved and stall the decision loop. A
+      // setTimeout safety net guarantees we always finish and move on.
+      let done = false;
+      function finish() {
+        if (done) return;
+        done = true;
+        signalDot.classList.add('opacity-0');
+        resolve();
+      }
+
       function step(timestamp) {
-        progress = (timestamp - startTime) / duration;
+        let progress = (timestamp - startTime) / duration;
         if (progress > 1) progress = 1;
 
-        const currX = start.x + (target.x - start.x) * progress;
-        const currY = start.y + (target.y - start.y) * progress;
+        signalDot.setAttribute('cx', start.x + (target.x - start.x) * progress);
+        signalDot.setAttribute('cy', start.y + (target.y - start.y) * progress);
 
-        signalDot.setAttribute('cx', currX);
-        signalDot.setAttribute('cy', currY);
-
-        if (progress < 1) {
+        if (progress < 1 && !done) {
           requestAnimationFrame(step);
         } else {
-          signalDot.classList.add('opacity-0');
-          resolve();
+          finish();
         }
       }
       requestAnimationFrame(step);
+      setTimeout(finish, duration + 200);
     });
-  }
-
-  function updateNodeState(id, isBreaking) {
-    const node = document.getElementById(`node-${id}`);
-    const scoreEl = node.querySelector('.score-val');
-    const bgEl = node.querySelector('.status-bg');
-    const textEl = node.querySelector('.status-text');
-    const rectEl = node.querySelector('rect');
-
-    let state = { status: 'HEALTHY', score: '1.00', color: 'emerald' };
-
-    if (isBreaking) {
-      if (['stock_advisor', 'fund_summary', 'sip_explainer'].includes(id)) {
-        state = { status: 'BROKEN', score: (0.4 + Math.random() * 0.2).toFixed(2), color: 'red' };
-      } else if (id === 'market_news') {
-        state = { status: 'FLAGGED', score: '0.85', color: 'amber' };
-      }
-    }
-
-    paintNode(node, scoreEl, textEl, bgEl, rectEl, state);
-    addToLog(id, state);
-
-    // The whole point of this product is auto-heal, not just detection.
-    // A prompt that goes BROKEN gets pinned back and recovers to healthy;
-    // FLAGGED (market_news) is deliberately left as-is for a human to review.
-    if (state.status === 'BROKEN') {
-      setTimeout(() => {
-        const healed = { status: 'HEALTHY', score: '1.00', color: 'emerald' };
-        paintNode(node, scoreEl, textEl, bgEl, rectEl, healed);
-        updateLogEntry(id, healed, 'PINNED BACK TO v1');
-      }, 700);
-    }
   }
 
   // SVG elements do not support plain `.className = "..."` assignment --
   // className on an SVGElement is a read-only SVGAnimatedString, so that
-  // assignment silently does nothing in real browsers. setAttribute works
-  // correctly on any element type, SVG included, so use that instead.
-  function paintNode(node, scoreEl, textEl, bgEl, rectEl, state) {
+  // assignment silently does nothing. setAttribute works on any element.
+  function paintNode(id, state) {
+    _paintByElementId(`node-${id}`, state);
+  }
+
+  // Pipeline nodes live in a separate layer with `pipeline-${id}` element
+  // ids (kept distinct from `node-${id}` so a pipeline and a prompt can
+  // never collide on the same id), but share the exact same internal badge
+  // markup, so this reuses the same painter.
+  function paintPipelineNode(id, state) {
+    _paintByElementId(`pipeline-${id}`, state);
+  }
+
+  function _paintByElementId(elementId, state) {
+    const node = document.getElementById(elementId);
+    if (!node) return;
+    const scoreEl = node.querySelector('.score-val');
+    const textEl = node.querySelector('.status-text');
+    const bgEl = node.querySelector('.status-bg');
+    const rectEl = node.querySelector('rect');
     scoreEl.textContent = state.score;
     textEl.textContent = state.status;
     textEl.setAttribute('class', `status-text fill-${state.color}-700 font-mono text-[9px] font-bold`);
@@ -379,37 +843,63 @@
     rectEl.setAttribute('stroke', strokeMap[state.color]);
   }
 
-  function addToLog(id, state) {
+  function addToLog(dec) {
+    const ui = STATUS_UI[dec.status] || STATUS_UI.green;
     const entry = document.createElement('div');
-    entry.id = `log-${id}`;
+    entry.id = `log-${dec.prompt_id}`;
     entry.className = "flex items-center justify-between border-ink-b pb-2 last:border-0 last:pb-0";
 
-    const delta = state.status === 'HEALTHY' ? '±0.00' : `-${(1.00 - parseFloat(state.score)).toFixed(2)}`;
-    const deltaColor = state.status === 'HEALTHY' ? 'text-ink/50' : 'text-bad-dark font-bold';
+    const diff = (dec.prev_score == null) ? null : dec.new_score - dec.prev_score;
+    const delta = diff == null ? '±0.00' : `${diff >= 0 ? '+' : ''}${diff.toFixed(2)}`;
+    const deltaColor = dec.status === 'red' ? 'text-bad-dark font-bold'
+                     : dec.status === 'amber' ? 'text-warn-dark font-bold'
+                     : 'text-ink/50';
+
+    // auto_rollback candidates get a real button instead of a passive label
+    // -- the fix is available, but waits for you to trigger it.
+    const actionHtml = dec.action === 'auto_rollback'
+      ? `<button class="rollback-btn badge-brutal bg-accent text-paper px-1.5 py-0.5 hover:bg-accent-dark transition-colors cursor-pointer" data-id="${dec.prompt_id}" data-prev="${dec.prev_score ?? 1}">ROLLBACK AVAILABLE</button>`
+      : `<p class="action-label text-[9px] text-ink/50 uppercase">${dec.action === 'flag_manual' ? 'FLAGGED FOR REVIEW' : 'ADOPTED'}</p>`;
 
     entry.innerHTML = `
       <div>
-        <p class="font-mono text-[11px] font-bold">${id}</p>
-        <span class="badge-brutal bg-${state.color}-100 text-${state.color}-700 mt-1 px-1.5 py-0.5">${state.status}</span>
+        <p class="font-mono text-[11px] font-bold">${dec.prompt_id}</p>
+        <span class="badge-brutal bg-${ui.color}-100 text-${ui.color}-700 mt-1 px-1.5 py-0.5">${ui.label}</span>
       </div>
       <div class="text-right">
         <p class="delta-val font-mono text-[10px] ${deltaColor}">${delta}</p>
-        <p class="action-label text-[9px] text-ink/50 uppercase">${state.status === 'BROKEN' ? 'ROLLING BACK...' : 'ACKNOWLEDGED'}</p>
+        ${actionHtml}
       </div>
     `;
     log.appendChild(entry);
     log.scrollTop = log.scrollHeight;
+
+    const btn = entry.querySelector('.rollback-btn');
+    if (btn) {
+      btn.addEventListener('click', () => performRollback(btn.dataset.id, Number(btn.dataset.prev)));
+    }
   }
 
-  function updateLogEntry(id, state, actionLabel) {
+  function updateLogEntry(id, actionLabel) {
     const entry = document.getElementById(`log-${id}`);
     if (!entry) return;
-    entry.querySelector('.badge-brutal').className = `badge-brutal bg-${state.color}-100 text-${state.color}-700 mt-1 px-1.5 py-0.5`;
-    entry.querySelector('.badge-brutal').textContent = state.status;
+    entry.querySelector('.badge-brutal').className = 'badge-brutal bg-emerald-100 text-emerald-700 mt-1 px-1.5 py-0.5';
+    entry.querySelector('.badge-brutal').textContent = 'HEALTHY';
     entry.querySelector('.delta-val').textContent = '±0.00';
     entry.querySelector('.delta-val').className = 'delta-val font-mono text-[10px] text-ink/50';
-    entry.querySelector('.action-label').textContent = actionLabel;
+    const btn = entry.querySelector('.rollback-btn');
+    if (btn) {
+      const p = document.createElement('p');
+      p.className = 'action-label text-[9px] text-ink/50 uppercase';
+      p.textContent = actionLabel;
+      btn.replaceWith(p);
+    } else {
+      const label = entry.querySelector('.action-label');
+      if (label) label.textContent = actionLabel;
+    }
   }
+
+  init();
 </script>
 </body>
 </html>

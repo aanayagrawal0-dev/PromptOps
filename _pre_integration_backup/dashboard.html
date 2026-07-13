@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dependency Graph | PromptOps</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="assets/brutalist.css" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: "#0a0a0a", paper: "#ffffff", "paper-alt": "#f2f1ec", "paper-dim": "#e4e2d8",
+          accent: "#3d5afe", "accent-dark": "#0031ca", "accent-light": "#e8eaff",
+          good: "#00c853", "good-dark": "#007a3d", "good-light": "#dcffea",
+          warn: "#ffab00", "warn-dark": "#a66900", "warn-light": "#fff3d6",
+          bad: "#ff1744", "bad-dark": "#a4001e", "bad-light": "#ffdde3"
+        },
+        fontFamily: { display: ["Space Grotesk", "sans-serif"], mono: ["JetBrains Mono", "monospace"], sans: ["Inter", "sans-serif"] },
+        borderRadius: { none: "0px", DEFAULT: "0px", sm: "0px", md: "2px", lg: "2px", xl: "2px", full: "9999px" }
+      }
+    }
+  }
+</script>
+<style>
+  .graph-line { stroke: var(--ink); stroke-width: 2; opacity: 0.25; }
+  .signal-dot { fill: var(--accent); filter: drop-shadow(0 0 4px rgba(61, 90, 254, 0.6)); }
+  .active-nav-item { background: var(--ink); color: var(--paper); }
+  .nav-item:hover:not(.active-nav-item) { background: var(--paper-dim); }
+  .pattern-dots { background-image: radial-gradient(circle, rgba(10,10,10,0.15) 1px, transparent 1px); background-size: 12px 12px; }
+</style>
+</head>
+<body class="bg-paper-alt text-ink font-sans min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-paper flex justify-between items-center px-6 md:px-10 h-16 w-full border-ink-b z-50 fixed top-0">
+  <div class="flex items-center gap-3">
+    <a href="landing.html" class="font-display text-xl font-bold tracking-tight flex items-center gap-2">
+      <span class="w-3 h-3 bg-accent border-ink-thin inline-block"></span>
+      PROMPT<span class="text-accent">OPS</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-2 ml-8">
+      <a class="font-mono text-xs uppercase font-bold px-3 py-2 hover:bg-paper-dim transition-colors cursor-pointer" href="console.html">Console</a>
+      <a class="font-mono text-xs uppercase font-bold px-3 py-2 bg-ink text-paper cursor-pointer" href="dashboard.html">Dependencies</a>
+    </nav>
+  </div>
+  <div class="flex items-center gap-3">
+    <span class="material-symbols-outlined cursor-pointer p-1 hover:text-accent transition-colors">settings</span>
+    <span class="material-symbols-outlined cursor-pointer p-1 hover:text-accent transition-colors">account_circle</span>
+  </div>
+</header>
+
+<div class="flex flex-1 pt-16 h-screen overflow-hidden">
+  <!-- Sidebar -->
+  <aside class="w-64 border-ink-r flex flex-col py-6 bg-paper shrink-0">
+    <div class="px-6 mb-8">
+      <a href="new-template.html" class="btn-brutal btn-brutal-accent w-full py-2.5 px-4 flex items-center justify-center gap-2 font-mono text-xs uppercase font-bold">
+        <span class="material-symbols-outlined text-[18px]">add</span>
+        Register New Template
+      </a>
+    </div>
+    <nav class="flex flex-col gap-1 px-3">
+      <div class="px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-ink/40 mb-1">Navigation</div>
+      <a class="nav-item px-3 py-2 flex items-center gap-2 transition-colors" href="console.html">
+        <span class="material-symbols-outlined text-[18px]">terminal</span>
+        <span class="text-sm">All Prompts</span>
+      </a>
+      <a class="nav-item px-3 py-2 flex items-center gap-2 transition-colors" href="regressions.html">
+        <span class="material-symbols-outlined text-[18px]">analytics</span>
+        <span class="text-sm">Regressions</span>
+      </a>
+      <div class="mt-6 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-ink/40 mb-1">Systems</div>
+      <a class="nav-item active-nav-item px-3 py-2 flex items-center gap-2 font-bold" href="dashboard.html">
+        <span class="material-symbols-outlined text-[18px]">hub</span>
+        <span class="text-sm">Dependencies</span>
+      </a>
+      <a class="nav-item px-3 py-2 flex items-center gap-2 transition-colors" href="onboarding.html">
+        <span class="material-symbols-outlined text-[18px]">settings_input_component</span>
+        <span class="text-sm">Initialize Fleet</span>
+      </a>
+    </nav>
+    <div class="mt-auto border-ink-t p-4 px-6">
+      <div class="flex items-center justify-between mb-3">
+        <span class="font-mono text-[10px] uppercase text-ink/50">Env: Production</span>
+        <span class="w-2 h-2 rounded-full bg-good"></span>
+      </div>
+      <button class="btn-brutal w-full py-2 font-mono text-[11px] uppercase font-bold" id="resetBtn">Reset Graph</button>
+    </div>
+  </aside>
+
+  <!-- Main Canvas -->
+  <main class="flex-1 overflow-y-auto p-6 md:p-10 bg-paper-alt">
+    <div class="grid grid-cols-12 gap-6 h-full">
+      <!-- Left Column: Dependency Graph -->
+      <div class="col-span-12 lg:col-span-8 flex flex-col h-full min-h-[600px]">
+        <div class="card-brutal flex-1 relative flex flex-col overflow-hidden">
+          <div class="border-ink-b p-4 flex items-center justify-between bg-ink text-paper">
+            <span class="font-mono text-xs font-bold">GRAPH_ENGINE_V2 :: LIVE_VIEW</span>
+            <span class="font-mono text-[11px] uppercase text-paper/60">USE_LIVE: false</span>
+          </div>
+          <div class="flex-1 relative bg-paper pattern-dots">
+            <svg class="w-full h-full" id="dependencyGraph" viewBox="0 0 800 600">
+              <!-- Connection Lines -->
+              <g id="lines">
+                <line class="graph-line" x1="400" x2="150" y1="80" y2="280"></line>
+                <line class="graph-line" x1="400" x2="325" y1="80" y2="280"></line>
+                <line class="graph-line" x1="400" x2="500" y1="80" y2="280"></line>
+                <line class="graph-line" x1="400" x2="675" y1="80" y2="280"></line>
+              </g>
+              <!-- Signal Animation Element -->
+              <circle class="signal-dot opacity-0" id="signalDot" r="5"></circle>
+              <!-- Template Node -->
+              <g class="cursor-pointer" id="node-template" transform="translate(325, 40)">
+                <rect fill="white" height="60" rx="0" stroke="#3d5afe" stroke-width="3" width="150"></rect>
+                <text class="font-mono text-[12px] font-bold" fill="#0a0a0a" text-anchor="middle" x="75" y="25">compliance_disclaimer</text>
+                <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.5" text-anchor="middle" x="75" y="45">(parent_template)</text>
+              </g>
+              <!-- stock_advisor -->
+              <g class="node-item" id="node-stock_advisor" transform="translate(75, 280)">
+                <rect fill="white" height="90" rx="0" stroke="#0a0a0a" stroke-width="2" width="150"></rect>
+                <text class="font-mono text-[11px]" fill="#0a0a0a" text-anchor="middle" x="75" y="25">stock_advisor</text>
+                <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">1.00</tspan></text>
+                <g transform="translate(20, 60)">
+                  <rect class="status-bg fill-emerald-100" height="18" rx="0" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
+                  <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
+                </g>
+              </g>
+              <!-- fund_summary -->
+              <g class="node-item" id="node-fund_summary" transform="translate(250, 280)">
+                <rect fill="white" height="90" rx="0" stroke="#0a0a0a" stroke-width="2" width="150"></rect>
+                <text class="font-mono text-[11px]" fill="#0a0a0a" text-anchor="middle" x="75" y="25">fund_summary</text>
+                <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">1.00</tspan></text>
+                <g transform="translate(20, 60)">
+                  <rect class="status-bg fill-emerald-100" height="18" rx="0" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
+                  <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
+                </g>
+              </g>
+              <!-- sip_explainer -->
+              <g class="node-item" id="node-sip_explainer" transform="translate(425, 280)">
+                <rect fill="white" height="90" rx="0" stroke="#0a0a0a" stroke-width="2" width="150"></rect>
+                <text class="font-mono text-[11px]" fill="#0a0a0a" text-anchor="middle" x="75" y="25">sip_explainer</text>
+                <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">1.00</tspan></text>
+                <g transform="translate(20, 60)">
+                  <rect class="status-bg fill-emerald-100" height="18" rx="0" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
+                  <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
+                </g>
+              </g>
+              <!-- market_news -->
+              <g class="node-item" id="node-market_news" transform="translate(600, 280)">
+                <rect fill="white" height="90" rx="0" stroke="#0a0a0a" stroke-width="2" width="150"></rect>
+                <text class="font-mono text-[11px]" fill="#0a0a0a" text-anchor="middle" x="75" y="25">market_news</text>
+                <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">1.00</tspan></text>
+                <g transform="translate(20, 60)">
+                  <rect class="status-bg fill-emerald-100" height="18" rx="0" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
+                  <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
+                </g>
+              </g>
+              <!-- greeting_bot -->
+              <g class="node-item" id="node-greeting_bot" transform="translate(337, 450)">
+                <rect fill="white" height="90" rx="0" stroke="#0a0a0a" stroke-width="2" width="150"></rect>
+                <text class="font-mono text-[11px]" fill="#0a0a0a" text-anchor="middle" x="75" y="25">greeting_bot</text>
+                <text class="text-[10px]" fill="#0a0a0a" fill-opacity="0.6" x="20" y="50">SCORE: <tspan class="score-val">1.00</tspan></text>
+                <g transform="translate(20, 60)">
+                  <rect class="status-bg fill-emerald-100" height="18" rx="0" width="60" stroke="#0a0a0a" stroke-width="1"></rect>
+                  <text class="status-text fill-emerald-700 font-mono text-[9px] font-bold" text-anchor="middle" x="30" y="13">HEALTHY</text>
+                </g>
+              </g>
+              <line class="graph-line" x1="400" x2="412" y1="80" y2="450"></line>
+            </svg>
+          </div>
+          <!-- Regression Callout -->
+          <div class="absolute bottom-4 left-4 right-4 bg-bad-light border-ink shadow-brutal-bad p-4 hidden" id="regressionExplain">
+            <div class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-bad-dark">warning</span>
+              <div>
+                <span class="font-mono text-[10px] font-bold text-bad-dark block mb-1 tracking-widest uppercase">Sarvam &middot; Regression Explanation</span>
+                <p class="text-sm text-ink/80 leading-relaxed">अनुपालन विसंगति पाई गई - पिछले संस्करण में वापस लाया गया। 'compliance_disclaimer' परिवर्तन ने 3 डाउनस्ट्रीम संकेतों को तोड़ दिया।</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Sidebar -->
+      <div class="col-span-12 lg:col-span-4 flex flex-col gap-6 overflow-y-auto pr-1">
+        <!-- Edit Template -->
+        <section class="card-brutal">
+          <div class="border-ink-b p-3 bg-ink text-paper">
+            <span class="font-mono text-xs font-bold uppercase">Edit Template</span>
+          </div>
+          <div class="p-4 space-y-3">
+            <textarea class="input-brutal w-full text-sm p-3 leading-relaxed" id="templateContent" placeholder="Enter template logic..." rows="6"></textarea>
+            <div class="flex flex-col gap-2">
+              <button class="btn-brutal btn-brutal-accent w-full py-2.5 font-mono text-xs uppercase font-bold" id="applyEditBtn">Apply Edit</button>
+              <button class="btn-brutal w-full py-2.5 font-mono text-xs uppercase font-bold" id="loadBreakingBtn">Load Breaking Edit</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Legend -->
+        <section class="card-brutal">
+          <div class="border-ink-b p-3 bg-ink text-paper">
+            <span class="font-mono text-xs font-bold uppercase">Legend</span>
+          </div>
+          <div class="p-4 grid grid-cols-3 gap-2 text-center">
+            <div class="space-y-1">
+              <span class="badge-brutal bg-emerald-100 text-emerald-700 px-2 py-1">Healthy</span>
+              <p class="text-[10px] text-ink/50">Score &gt; 0.95</p>
+            </div>
+            <div class="space-y-1">
+              <span class="badge-brutal bg-amber-100 text-amber-700 px-2 py-1">Flagged</span>
+              <p class="text-[10px] text-ink/50">Score 0.8-0.95</p>
+            </div>
+            <div class="space-y-1">
+              <span class="badge-brutal bg-red-100 text-red-700 px-2 py-1">Broken</span>
+              <p class="text-[10px] text-ink/50">Score &lt; 0.8</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Decisions -->
+        <section class="card-brutal flex-1 flex flex-col min-h-0">
+          <div class="border-ink-b p-3 bg-ink text-paper flex justify-between items-center">
+            <span class="font-mono text-xs font-bold uppercase">Decisions</span>
+            <span class="material-symbols-outlined text-[18px]">history</span>
+          </div>
+          <div class="p-4 space-y-3 overflow-y-auto max-h-[300px]" id="decisionLog">
+            <div class="text-ink/40 text-xs italic text-center py-8 font-mono">No recent decisions...</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Footer -->
+<footer class="bg-ink text-paper border-ink-t py-3 px-6 md:px-10 w-full flex flex-col md:flex-row justify-between items-center z-50">
+  <span class="font-mono text-[11px] uppercase tracking-tighter text-paper/60">&copy; 2026 PromptOps Technical Systems</span>
+  <div class="flex gap-6 items-center">
+    <a class="text-sm text-paper/70 hover:text-accent transition-colors" href="#">Support</a>
+    <a class="text-sm text-paper/70 hover:text-accent transition-colors" href="#">Status</a>
+    <span class="text-[10px] font-mono bg-paper text-ink px-2 py-0.5 border-2 border-paper">V 2.1.0-RC1</span>
+  </div>
+</footer>
+
+<script>
+  const nodePositions = {
+    template: { x: 400, y: 70 },
+    stock_advisor: { x: 150, y: 325 },
+    fund_summary: { x: 325, y: 325 },
+    sip_explainer: { x: 500, y: 325 },
+    market_news: { x: 675, y: 325 },
+    greeting_bot: { x: 412, y: 495 }
+  };
+
+  const BREAKING_CONTENT = "WARNING: System-wide override enabled. This template now includes restrictive legal phrasing that may conflict with conversational tones and specific financial terminology. Ensure all downstream prompts are compatible with strict clause 4B.1.";
+  const DEFAULT_CONTENT = "Standard regulatory disclaimer for all financial advisory products. Ensure neutral tone and high clarity.";
+
+  document.getElementById('templateContent').value = DEFAULT_CONTENT;
+
+  const applyBtn = document.getElementById('applyEditBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const loadBreakingBtn = document.getElementById('loadBreakingBtn');
+  const signalDot = document.getElementById('signalDot');
+  const log = document.getElementById('decisionLog');
+  const hindiBox = document.getElementById('regressionExplain');
+
+  loadBreakingBtn.addEventListener('click', () => {
+    document.getElementById('templateContent').value = BREAKING_CONTENT;
+  });
+
+  resetBtn.addEventListener('click', () => {
+    location.reload();
+  });
+
+  applyBtn.addEventListener('click', async () => {
+    const isBreaking = document.getElementById('templateContent').value.includes("WARNING");
+    applyBtn.disabled = true;
+    applyBtn.innerText = "PROCESSING...";
+
+    log.innerHTML = '';
+    hindiBox.classList.add('hidden');
+
+    const targets = ['stock_advisor', 'fund_summary', 'sip_explainer', 'market_news', 'greeting_bot'];
+
+    for (const id of targets) {
+      await animateSignal(id);
+      updateNodeState(id, isBreaking);
+    }
+
+    applyBtn.disabled = false;
+    applyBtn.innerText = "APPLY EDIT";
+
+    if (isBreaking) {
+      setTimeout(() => {
+        hindiBox.classList.remove('hidden');
+      }, 500);
+    }
+  });
+
+  function animateSignal(targetId) {
+    return new Promise(resolve => {
+      const target = nodePositions[targetId];
+      const start = nodePositions.template;
+
+      signalDot.setAttribute('cx', start.x);
+      signalDot.setAttribute('cy', start.y);
+      signalDot.classList.remove('opacity-0');
+
+      let progress = 0;
+      const duration = 400; // ms
+      const startTime = performance.now();
+
+      function step(timestamp) {
+        progress = (timestamp - startTime) / duration;
+        if (progress > 1) progress = 1;
+
+        const currX = start.x + (target.x - start.x) * progress;
+        const currY = start.y + (target.y - start.y) * progress;
+
+        signalDot.setAttribute('cx', currX);
+        signalDot.setAttribute('cy', currY);
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          signalDot.classList.add('opacity-0');
+          resolve();
+        }
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  function updateNodeState(id, isBreaking) {
+    const node = document.getElementById(`node-${id}`);
+    const scoreEl = node.querySelector('.score-val');
+    const bgEl = node.querySelector('.status-bg');
+    const textEl = node.querySelector('.status-text');
+    const rectEl = node.querySelector('rect');
+
+    let state = { status: 'HEALTHY', score: '1.00', color: 'emerald' };
+
+    if (isBreaking) {
+      if (['stock_advisor', 'fund_summary', 'sip_explainer'].includes(id)) {
+        state = { status: 'BROKEN', score: (0.4 + Math.random() * 0.2).toFixed(2), color: 'red' };
+      } else if (id === 'market_news') {
+        state = { status: 'FLAGGED', score: '0.85', color: 'amber' };
+      }
+    }
+
+    paintNode(node, scoreEl, textEl, bgEl, rectEl, state);
+    addToLog(id, state);
+
+    // The whole point of this product is auto-heal, not just detection.
+    // A prompt that goes BROKEN gets pinned back and recovers to healthy;
+    // FLAGGED (market_news) is deliberately left as-is for a human to review.
+    if (state.status === 'BROKEN') {
+      setTimeout(() => {
+        const healed = { status: 'HEALTHY', score: '1.00', color: 'emerald' };
+        paintNode(node, scoreEl, textEl, bgEl, rectEl, healed);
+        updateLogEntry(id, healed, 'PINNED BACK TO v1');
+      }, 700);
+    }
+  }
+
+  // SVG elements do not support plain `.className = "..."` assignment --
+  // className on an SVGElement is a read-only SVGAnimatedString, so that
+  // assignment silently does nothing in real browsers. setAttribute works
+  // correctly on any element type, SVG included, so use that instead.
+  function paintNode(node, scoreEl, textEl, bgEl, rectEl, state) {
+    scoreEl.textContent = state.score;
+    textEl.textContent = state.status;
+    textEl.setAttribute('class', `status-text fill-${state.color}-700 font-mono text-[9px] font-bold`);
+    bgEl.setAttribute('class', `status-bg fill-${state.color}-100`);
+    const strokeMap = { red: '#ff1744', amber: '#ffab00', emerald: '#0a0a0a' };
+    rectEl.setAttribute('stroke', strokeMap[state.color]);
+  }
+
+  function addToLog(id, state) {
+    const entry = document.createElement('div');
+    entry.id = `log-${id}`;
+    entry.className = "flex items-center justify-between border-ink-b pb-2 last:border-0 last:pb-0";
+
+    const delta = state.status === 'HEALTHY' ? '±0.00' : `-${(1.00 - parseFloat(state.score)).toFixed(2)}`;
+    const deltaColor = state.status === 'HEALTHY' ? 'text-ink/50' : 'text-bad-dark font-bold';
+
+    entry.innerHTML = `
+      <div>
+        <p class="font-mono text-[11px] font-bold">${id}</p>
+        <span class="badge-brutal bg-${state.color}-100 text-${state.color}-700 mt-1 px-1.5 py-0.5">${state.status}</span>
+      </div>
+      <div class="text-right">
+        <p class="delta-val font-mono text-[10px] ${deltaColor}">${delta}</p>
+        <p class="action-label text-[9px] text-ink/50 uppercase">${state.status === 'BROKEN' ? 'ROLLING BACK...' : 'ACKNOWLEDGED'}</p>
+      </div>
+    `;
+    log.appendChild(entry);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function updateLogEntry(id, state, actionLabel) {
+    const entry = document.getElementById(`log-${id}`);
+    if (!entry) return;
+    entry.querySelector('.badge-brutal').className = `badge-brutal bg-${state.color}-100 text-${state.color}-700 mt-1 px-1.5 py-0.5`;
+    entry.querySelector('.badge-brutal').textContent = state.status;
+    entry.querySelector('.delta-val').textContent = '±0.00';
+    entry.querySelector('.delta-val').className = 'delta-val font-mono text-[10px] text-ink/50';
+    entry.querySelector('.action-label').textContent = actionLabel;
+  }
+</script>
+</body>
+</html>

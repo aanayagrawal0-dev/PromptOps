@@ -90,6 +90,26 @@ def set_status(prompt_id: str, score: float, status: str):
     )
 
 
+def delete(prompt_id: str):
+    """Remove a prompt node and any relationships it has entirely. No-op
+    (like every write here) while GRAPH_DISABLED, which is the default
+    demo config."""
+    _run(
+        "MATCH (p:Prompt {id:$pid}) DETACH DELETE p",
+        pid=prompt_id,
+    )
+
+
+def unlink(prompt_id: str):
+    """Remove a prompt's USES_TEMPLATE relationship entirely -- the graph
+    counterpart to db.unlink_template. No-op (like every write here) while
+    GRAPH_DISABLED, which is the default demo config."""
+    _run(
+        "MATCH (p:Prompt {id:$pid})-[r:USES_TEMPLATE]->() DELETE r",
+        pid=prompt_id,
+    )
+
+
 def set_pin(prompt_id: str, template_id: str, pinned_version: int):
     _run(
         """MATCH (p:Prompt {id:$pid})-[r:USES_TEMPLATE]->(t:Template {id:$tid})

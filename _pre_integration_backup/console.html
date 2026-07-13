@@ -91,7 +91,7 @@
         </div>
         <div class="relative">
           <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink/40">search</span>
-          <input class="input-brutal pl-11 pr-4 py-2 text-sm min-w-[240px]" id="filterInput" placeholder="Filter prompts..." type="text"/>
+          <input class="input-brutal pl-11 pr-4 py-2 text-sm min-w-[240px]" placeholder="Filter templates..." type="text"/>
         </div>
       </header>
 
@@ -107,13 +107,75 @@
               <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider w-10"></th>
             </tr>
           </thead>
-          <tbody class="text-sm" id="promptTableBody">
-            <tr><td class="py-8 px-4 text-center text-ink/40 font-mono text-xs" colspan="5">Loading prompts…</td></tr>
+          <tbody class="text-sm">
+            <tr class="border-ink-b hover:bg-accent-light transition-colors group cursor-pointer" onclick="location.href='dashboard.html'">
+              <td class="py-4 px-4">
+                <div class="flex flex-col">
+                  <span class="font-mono font-bold">stock_advisor</span>
+                  <span class="text-[10px] text-ink/50">uses: compliance_disclaimer</span>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex justify-center">
+                  <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
+                    Healthy
+                  </span>
+                </div>
+              </td>
+              <td class="py-4 px-4 font-mono text-ink/70">seeded &middot; v1</td>
+              <td class="py-4 px-4 text-right font-mono">1</td>
+              <td class="py-4 px-4">
+                <button class="material-symbols-outlined opacity-0 group-hover:opacity-100 hover:text-accent transition-all">chevron_right</button>
+              </td>
+            </tr>
+            <tr class="border-ink-b hover:bg-accent-light transition-colors group cursor-pointer" onclick="location.href='dashboard.html'">
+              <td class="py-4 px-4">
+                <div class="flex flex-col">
+                  <span class="font-mono font-bold">fund_summary</span>
+                  <span class="text-[10px] text-ink/50">uses: compliance_disclaimer</span>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex justify-center">
+                  <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
+                    Healthy
+                  </span>
+                </div>
+              </td>
+              <td class="py-4 px-4 font-mono text-ink/70">seeded &middot; v1</td>
+              <td class="py-4 px-4 text-right font-mono">1</td>
+              <td class="py-4 px-4">
+                <button class="material-symbols-outlined opacity-0 group-hover:opacity-100 hover:text-accent transition-all">chevron_right</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-accent-light transition-colors group cursor-pointer" onclick="location.href='dashboard.html'">
+              <td class="py-4 px-4">
+                <div class="flex flex-col">
+                  <span class="font-mono font-bold">sip_explainer</span>
+                  <span class="text-[10px] text-ink/50">uses: compliance_disclaimer</span>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex justify-center">
+                  <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
+                    Healthy
+                  </span>
+                </div>
+              </td>
+              <td class="py-4 px-4 font-mono text-ink/70">seeded &middot; v1</td>
+              <td class="py-4 px-4 text-right font-mono">1</td>
+              <td class="py-4 px-4">
+                <button class="material-symbols-outlined opacity-0 group-hover:opacity-100 hover:text-accent transition-all">chevron_right</button>
+              </td>
+            </tr>
           </tbody>
         </table>
         <!-- Pagination-style Footer for Table -->
         <div class="p-4 flex justify-between items-center bg-paper-alt border-ink-t">
-          <span class="font-mono text-[11px] text-ink/50" id="promptCount">&nbsp;</span>
+          <span class="font-mono text-[11px] text-ink/50">Showing 3 of 3 registered templates</span>
           <div class="flex gap-2">
             <button class="px-3 py-1 border-ink-thin font-mono text-[11px] opacity-40 cursor-not-allowed" disabled="">Prev</button>
             <button class="px-3 py-1 border-ink-thin font-mono text-[11px] opacity-40 cursor-not-allowed" disabled="">Next</button>
@@ -129,18 +191,18 @@
             <div class="relative w-24 h-24 shrink-0">
               <svg class="w-full h-full" viewBox="0 0 36 36">
                 <path class="stroke-current text-paper-dim" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="4"></path>
-                <path class="stroke-current text-accent" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" id="healthArc" stroke-dasharray="100, 100" stroke-linecap="butt" stroke-width="4"></path>
+                <path class="stroke-current text-accent" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="100, 100" stroke-linecap="butt" stroke-width="4"></path>
               </svg>
-              <div class="absolute inset-0 flex items-center justify-center font-mono text-lg font-bold" id="healthPct">--</div>
+              <div class="absolute inset-0 flex items-center justify-center font-mono text-lg font-bold">100%</div>
             </div>
             <div class="flex-1 grid grid-cols-2 gap-3">
               <div class="p-3 border-ink-thin">
                 <div class="font-mono text-[10px] uppercase text-ink/50">Threshold</div>
-                <div class="font-mono text-lg font-bold text-accent" id="statThreshold">--</div>
+                <div class="font-mono text-lg font-bold text-accent">0.80</div>
               </div>
               <div class="p-3 border-ink-thin">
                 <div class="font-mono text-[10px] uppercase text-ink/50">Templates Tracked</div>
-                <div class="font-mono text-lg font-bold text-accent" id="statTemplates">--</div>
+                <div class="font-mono text-lg font-bold text-accent">1</div>
               </div>
               <div class="p-3 border-ink-thin">
                 <div class="font-mono text-[10px] uppercase text-ink/50">Auto-rollbacks (session)</div>
@@ -148,7 +210,7 @@
               </div>
               <div class="p-3 border-ink-thin">
                 <div class="font-mono text-[10px] uppercase text-ink/50">Prompts Tracked</div>
-                <div class="font-mono text-lg font-bold text-accent" id="statPrompts">--</div>
+                <div class="font-mono text-lg font-bold text-accent">3</div>
               </div>
             </div>
           </div>
@@ -179,79 +241,13 @@
   </div>
 </footer>
 
-<script src="assets/api.js"></script>
 <script>
-  const tbody = document.getElementById('promptTableBody');
-  const filterInput = document.getElementById('filterInput');
-
-  const STATUS_BADGE = {
-    green: { cls: 'bg-good-light text-good-dark', dot: 'bg-good', label: 'Healthy' },
-    amber: { cls: 'bg-warn-light text-warn-dark', dot: 'bg-warn', label: 'Flagged' },
-    red: { cls: 'bg-bad-light text-bad-dark', dot: 'bg-bad', label: 'Broken' },
-  };
-  const fmtScore = (s) => (s == null ? '--' : `score ${Number(s).toFixed(2)}`);
-
-  function rowHtml(p) {
-    const b = STATUS_BADGE[p.status] || STATUS_BADGE.green;
-    return `
-      <tr class="border-ink-b hover:bg-accent-light transition-colors group cursor-pointer" data-name="${p.id}" onclick="location.href='dashboard.html'">
-        <td class="py-4 px-4">
-          <div class="flex flex-col">
-            <span class="font-mono font-bold">${p.id}</span>
-            <span class="text-[10px] text-ink/50">uses: ${p.template_id ?? '—'}</span>
-          </div>
-        </td>
-        <td class="py-4 px-4">
-          <div class="flex justify-center">
-            <span class="badge-brutal ${b.cls} px-2 py-1">
-              <span class="w-1.5 h-1.5 rounded-full ${b.dot}"></span> ${b.label}
-            </span>
-          </div>
-        </td>
-        <td class="py-4 px-4 font-mono text-ink/70">v${p.version} &middot; ${fmtScore(p.score)}</td>
-        <td class="py-4 px-4 text-right font-mono">1</td>
-        <td class="py-4 px-4">
-          <button class="material-symbols-outlined opacity-0 group-hover:opacity-100 hover:text-accent transition-all">chevron_right</button>
-        </td>
-      </tr>`;
-  }
-
-  async function init() {
-    let data;
-    try {
-      data = await ensureSeeded();
-    } catch (e) {
-      tbody.innerHTML = `<tr><td class="p-6 text-center text-bad-dark font-mono text-xs" colspan="5">
-        Backend offline at ${API_BASE}. Start it with: uvicorn promptops.main:app --reload</td></tr>`;
-      return;
-    }
-
-    const prompts = data.prompts;
-    tbody.innerHTML = prompts.length
-      ? prompts.map(rowHtml).join('')
-      : `<tr><td class="p-6 text-center text-ink/40 font-mono text-xs" colspan="5">No prompts tracked yet.</td></tr>`;
-
-    const templates = new Set(prompts.map(p => p.template_id).filter(Boolean));
-    const healthy = prompts.filter(p => p.status === 'green').length;
-    const pct = prompts.length ? Math.round(100 * healthy / prompts.length) : 100;
-
-    document.getElementById('promptCount').textContent = `Showing ${prompts.length} of ${prompts.length} tracked prompts`;
-    document.getElementById('statThreshold').textContent = Number(data.threshold).toFixed(2);
-    document.getElementById('statTemplates').textContent = templates.size;
-    document.getElementById('statPrompts').textContent = prompts.length;
-    document.getElementById('healthPct').textContent = pct + '%';
-    document.getElementById('healthArc').setAttribute('stroke-dasharray', `${pct}, 100`);
-  }
-
-  filterInput.addEventListener('input', () => {
-    const q = filterInput.value.toLowerCase();
-    tbody.querySelectorAll('tr').forEach(tr => {
-      const name = (tr.getAttribute('data-name') || '').toLowerCase();
-      if (tr.hasAttribute('data-name')) tr.style.display = name.includes(q) ? '' : 'none';
+  document.querySelectorAll('tbody tr').forEach(row => {
+    row.addEventListener('click', () => {
+      row.style.backgroundColor = '#e8eaff';
+      setTimeout(() => { row.style.backgroundColor = ''; }, 150);
     });
   });
-
-  init();
 </script>
 </body>
 </html>

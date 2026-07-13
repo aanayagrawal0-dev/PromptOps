@@ -98,19 +98,19 @@
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="card-brutal p-4">
           <div class="font-mono text-[10px] uppercase text-ink/50">Detected (7d)</div>
-          <div class="font-mono text-2xl font-bold">5</div>
+          <div class="font-mono text-2xl font-bold" id="statDetected">--</div>
         </div>
         <div class="card-brutal p-4">
           <div class="font-mono text-[10px] uppercase text-ink/50">Auto-Healed</div>
-          <div class="font-mono text-2xl font-bold text-good-dark">3</div>
+          <div class="font-mono text-2xl font-bold text-good-dark" id="statHealed">--</div>
         </div>
         <div class="card-brutal p-4">
           <div class="font-mono text-[10px] uppercase text-ink/50">Flagged for Review</div>
-          <div class="font-mono text-2xl font-bold text-warn-dark">1</div>
+          <div class="font-mono text-2xl font-bold text-warn-dark" id="statFlagged">--</div>
         </div>
         <div class="card-brutal p-4">
-          <div class="font-mono text-[10px] uppercase text-ink/50">Avg. Recovery Time</div>
-          <div class="font-mono text-2xl font-bold text-accent">700ms</div>
+          <div class="font-mono text-[10px] uppercase text-ink/50">Avg. Recovery Time <span class="normal-case text-ink/30">(measured)</span></div>
+          <div class="font-mono text-2xl font-bold text-accent" id="statRecovery">--</div>
         </div>
       </div>
 
@@ -126,70 +126,12 @@
               <th class="py-3 px-4 font-mono text-[11px] uppercase tracking-wider">Resolution</th>
             </tr>
           </thead>
-          <tbody class="text-sm">
-            <tr class="border-ink-b hover:bg-accent-light transition-colors">
-              <td class="py-4 px-4 font-mono text-ink/70">2026-07-08 14:32:11</td>
-              <td class="py-4 px-4 font-mono font-bold">stock_advisor</td>
-              <td class="py-4 px-4 text-ink/70">compliance_disclaimer edit</td>
-              <td class="py-4 px-4 text-center font-mono"><span class="text-bad-dark font-bold">1.00 &rarr; 0.52</span></td>
-              <td class="py-4 px-4">
-                <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
-                  Auto-rolled back to v1
-                </span>
-              </td>
-            </tr>
-            <tr class="border-ink-b hover:bg-accent-light transition-colors">
-              <td class="py-4 px-4 font-mono text-ink/70">2026-07-08 14:32:11</td>
-              <td class="py-4 px-4 font-mono font-bold">fund_summary</td>
-              <td class="py-4 px-4 text-ink/70">compliance_disclaimer edit</td>
-              <td class="py-4 px-4 text-center font-mono"><span class="text-bad-dark font-bold">1.00 &rarr; 0.48</span></td>
-              <td class="py-4 px-4">
-                <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
-                  Auto-rolled back to v1
-                </span>
-              </td>
-            </tr>
-            <tr class="border-ink-b hover:bg-accent-light transition-colors">
-              <td class="py-4 px-4 font-mono text-ink/70">2026-07-08 14:32:12</td>
-              <td class="py-4 px-4 font-mono font-bold">sip_explainer</td>
-              <td class="py-4 px-4 text-ink/70">compliance_disclaimer edit</td>
-              <td class="py-4 px-4 text-center font-mono"><span class="text-bad-dark font-bold">1.00 &rarr; 0.55</span></td>
-              <td class="py-4 px-4">
-                <span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-good"></span>
-                  Auto-rolled back to v1
-                </span>
-              </td>
-            </tr>
-            <tr class="border-ink-b hover:bg-accent-light transition-colors">
-              <td class="py-4 px-4 font-mono text-ink/70">2026-07-08 14:32:12</td>
-              <td class="py-4 px-4 font-mono font-bold">market_news</td>
-              <td class="py-4 px-4 text-ink/70">compliance_disclaimer edit</td>
-              <td class="py-4 px-4 text-center font-mono"><span class="text-warn-dark font-bold">1.00 &rarr; 0.85</span></td>
-              <td class="py-4 px-4">
-                <span class="badge-brutal bg-warn-light text-warn-dark px-2 py-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-warn"></span>
-                  Flagged for human review
-                </span>
-              </td>
-            </tr>
-            <tr class="hover:bg-accent-light transition-colors">
-              <td class="py-4 px-4 font-mono text-ink/70">2026-07-07 09:14:03</td>
-              <td class="py-4 px-4 font-mono font-bold">greeting_bot</td>
-              <td class="py-4 px-4 text-ink/70">tone_adjustment edit</td>
-              <td class="py-4 px-4 text-center font-mono"><span class="text-ink/60 font-bold">1.00 &rarr; 0.91</span></td>
-              <td class="py-4 px-4">
-                <span class="badge-brutal bg-paper-dim text-ink/70 px-2 py-1">
-                  Acknowledged, no action
-                </span>
-              </td>
-            </tr>
+          <tbody class="text-sm" id="regressionTableBody">
+            <tr><td class="py-8 px-4 text-center text-ink/40 font-mono text-xs" colspan="5">Loading regression history…</td></tr>
           </tbody>
         </table>
         <div class="p-4 flex justify-between items-center bg-paper-alt border-ink-t">
-          <span class="font-mono text-[11px] text-ink/50">Showing 5 of 5 regression events</span>
+          <span class="font-mono text-[11px] text-ink/50" id="regressionCount">&nbsp;</span>
           <div class="flex gap-2">
             <button class="px-3 py-1 border-ink-thin font-mono text-[11px] opacity-40 cursor-not-allowed" disabled="">Prev</button>
             <button class="px-3 py-1 border-ink-thin font-mono text-[11px] opacity-40 cursor-not-allowed" disabled="">Next</button>
@@ -197,7 +139,7 @@
         </div>
       </div>
 
-      <p class="mt-4 text-xs text-ink/50 font-mono">This log mirrors the live simulation on the <a href="dashboard.html" class="text-accent hover:underline">Dependency Graph</a> page — apply a breaking edit there to generate a new event.</p>
+      <p class="mt-4 text-xs text-ink/50 font-mono">This is a real log, not a simulation -- apply a breaking edit on the <a href="dashboard.html" class="text-accent hover:underline">Dependency Graph</a> page to generate a new event here.</p>
     </div>
   </main>
 </div>
@@ -212,5 +154,61 @@
     <a class="text-sm text-paper/70 hover:text-accent transition-colors" href="https://github.com/aanayagrawal0-dev/promptops">Github</a>
   </div>
 </footer>
+
+<script src="assets/api.js"></script>
+<script>
+  const fmtScore = (s) => (s == null ? '--' : Number(s).toFixed(2));
+
+  function actionBadge(e) {
+    if (e.action === 'auto_rollback') {
+      const label = e.rolled_back_to_version
+        ? `Auto-rolled back to v${e.rolled_back_to_version}`
+        : 'Auto-rolled back';
+      return `<span class="badge-brutal bg-good-light text-good-dark px-2 py-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-good"></span>${label}</span>`;
+    }
+    return `<span class="badge-brutal bg-warn-light text-warn-dark px-2 py-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-warn"></span>Flagged for human review</span>`;
+  }
+
+  function rowHtml(e) {
+    const deltaColor = e.action === 'auto_rollback' ? 'text-bad-dark' : 'text-warn-dark';
+    return `
+      <tr class="border-ink-b hover:bg-accent-light transition-colors">
+        <td class="py-4 px-4 font-mono text-ink/70">${e.created_at}</td>
+        <td class="py-4 px-4 font-mono font-bold">${e.prompt_id}</td>
+        <td class="py-4 px-4 text-ink/70">${e.template_id} edit</td>
+        <td class="py-4 px-4 text-center font-mono"><span class="${deltaColor} font-bold">${fmtScore(e.prev_score)} &rarr; ${fmtScore(e.new_score)}</span></td>
+        <td class="py-4 px-4">${actionBadge(e)}</td>
+      </tr>`;
+  }
+
+  async function init() {
+    const tbody = document.getElementById('regressionTableBody');
+    let data;
+    try {
+      data = await apiGet('/regressions');
+    } catch (e) {
+      tbody.innerHTML = `<tr><td class="p-6 text-center text-bad-dark font-mono text-xs" colspan="5">
+        Backend offline at ${API_BASE}. Start it with: uvicorn promptops.main:app --reload</td></tr>`;
+      return;
+    }
+
+    document.getElementById('statDetected').textContent = data.stats.detected_7d;
+    document.getElementById('statHealed').textContent = data.stats.auto_healed;
+    document.getElementById('statFlagged').textContent = data.stats.flagged;
+    document.getElementById('statRecovery').textContent =
+      data.stats.avg_recovery_ms != null ? `${data.stats.avg_recovery_ms}ms` : '--';
+
+    tbody.innerHTML = data.events.length
+      ? data.events.map(rowHtml).join('')
+      : `<tr><td class="p-6 text-center text-ink/40 font-mono text-xs" colspan="5">
+          No regressions caught yet. Apply a breaking edit on the Dependency Graph page to generate one.</td></tr>`;
+    document.getElementById('regressionCount').textContent =
+      `Showing ${data.events.length} of ${data.events.length} regression events`;
+  }
+
+  init();
+</script>
 </body>
 </html>
