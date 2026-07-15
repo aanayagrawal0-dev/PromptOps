@@ -2,7 +2,6 @@
 
 **Catches when editing a shared prompt template silently breaks other prompts, auto-rolls back the broken ones, and explains regressions in Hindi via Sarvam AI.**
 
-Built for HACKHAZARDS '26.
 
 ---
 
