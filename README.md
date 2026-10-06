@@ -58,7 +58,7 @@ Every tier is data-driven, not hardcoded -- registering a new prompt or pipeline
 
 - **Backend:** FastAPI, Python
 - **Storage:** SQLite (dev, zero-setup; schema is standard SQL, so swapping to Postgres is a connection-string change), Neo4j for an optional dependency-graph mirror
-- **LLM:** Sarvam AI (`sarvam-30b`) for semantic eval judging, output generation, and Hindi regression explanations; a deterministic offline mock mode for reproducible demos with no API key
+- **LLM:** Sarvam AI (`sarvam-105b`) for semantic eval judging, output generation, and Hindi regression explanations; a deterministic offline mock mode for reproducible demos with no API key
 - **Frontend:** Static HTML/CSS/JS, Tailwind (CDN), vanilla SVG for the dependency graph -- no build step, served by FastAPI itself at the same origin as the API (no separate static server, no CORS to configure for a deployed instance)
 
 ## Project structure

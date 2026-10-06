@@ -42,10 +42,10 @@ LLM_MODE = os.getenv("PROMPTOPS_LLM_MODE", "mock")
 
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
 SARVAM_BASE_URL = os.getenv("SARVAM_BASE_URL", "https://api.sarvam.ai/v1")
-# "sarvam-m" is deprecated. The chat-completions endpoint currently accepts
-# only "sarvam-30b" (64K context) or "sarvam-105b" (128K context) -- the
-# smaller model is the sane default for a one-sentence explanation.
-SARVAM_MODEL = os.getenv("SARVAM_MODEL", "sarvam-30b")
+# "sarvam-m" and "sarvam-30b" are both deprecated -- the chat-completions
+# endpoint now rejects them with a 400. "sarvam-105b" (128K context) is the
+# current general chat model.
+SARVAM_MODEL = os.getenv("SARVAM_MODEL", "sarvam-105b")
 
 # Cap on the answer-generating call (not the judge call -- its output is a
 # tiny JSON array, never at risk of truncation). Without this, the model
