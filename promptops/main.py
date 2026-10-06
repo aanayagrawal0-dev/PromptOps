@@ -92,9 +92,25 @@ def _startup():
     db.init_db()
 
 
+def _seed_or_wipe():
+    """seed() writes each prompt before scoring it with a live model call, so
+    a Sarvam failure halfway through (bad key, no credit, timeout) used to
+    leave a half-seeded DB -- one unscored prompt, no pipelines -- and since
+    the frontend only auto-seeds an EMPTY DB, it never recovered. On failure,
+    wipe back to empty so the next page load retries the whole seed."""
+    try:
+        seed_module.seed()
+    except Exception:
+        db.reset_all()
+        raise
+
+
 @app.post("/demo/seed")
 def demo_seed():
-    seed_module.seed()
+    if db.all_prompts():
+        seed_module.seed()
+    else:
+        _seed_or_wipe()
     return {"ok": True, "graph": graph.snapshot()}
 
 
@@ -105,7 +121,7 @@ def demo_reset():
     the original 5-prompt baseline -- not just reload the page, which left
     all that test data sitting in the database untouched."""
     db.reset_all()
-    seed_module.seed()
+    _seed_or_wipe()
     return {"ok": True, "graph": graph.snapshot()}
 
 

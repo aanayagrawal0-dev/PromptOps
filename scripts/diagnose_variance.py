@@ -3,11 +3,12 @@ two dataset rows, so we can see whether the model is skipping the disclosure
 on one question, or the judge is being inconsistent about recognizing it that
 IS there. Run from the PromptOps folder with venv active:
 
-    python diagnose_variance.py
+    python scripts/diagnose_variance.py
 """
 import sys
+from pathlib import Path
 
-sys.path.insert(0, ".")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # repo root
 from promptops import config, llm, resolver, seed  # noqa: E402
 
 print(f"MODE={config.LLM_MODE}  MODEL={config.SARVAM_MODEL}\n")

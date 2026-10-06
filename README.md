@@ -66,6 +66,7 @@ Every tier is data-driven, not hardcoded -- registering a new prompt or pipeline
 ```
 PromptOps/
 |-- requirements.txt
+|-- scripts/                    # one-off live-Sarvam diagnostics (test_live.py, diagnose_variance.py)
 |-- .env                        # not committed -- see Setup below
 |-- landing.html
 |-- onboarding.html             # static config-wizard placeholder (not yet wired to the backend)
@@ -148,5 +149,5 @@ To use real Sarvam AI calls instead of the deterministic mock, set `PROMPTOPS_LL
 
 - Core gating/rollback logic, the mock-mode demo, the 3-tier dependency graph, and the live Sarvam integration are all fully functional.
 - Neo4j is wired but optional and off by default -- SQLite is the real source of truth the UI reads from.
-- `onboarding.html` is currently a static config-wizard mockup and isn't wired to the backend yet.
+- `onboarding.html` is a static config helper: it generates `.env` lines from what you enter but isn't wired to the backend.
 - Live mode makes real, non-deterministic model calls -- occasionally a single live call (especially the auto-rollback's own recovery verification step) can land a prompt on a borderline score purely from run-to-run model variance, not a logic bug. Re-saving a prompt's body unchanged forces a fresh live re-score.

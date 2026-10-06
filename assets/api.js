@@ -55,8 +55,14 @@ async function apiDelete(path) {
 // are never blank on a fresh backend. Returns the /prompts payload.
 async function ensureSeeded() {
   let data = await apiGet("/prompts");
-  if (!data.prompts || data.prompts.length === 0) {
+  const prompts = data.prompts || [];
+  if (prompts.length === 0) {
     await apiPost("/demo/seed");
+    data = await apiGet("/prompts");
+  } else if (prompts.every((p) => p.score == null)) {
+    // Prompts exist but none was ever scored -- a seed that died partway
+    // (e.g. a Sarvam call failed). Wipe and reseed instead of showing it.
+    await apiPost("/demo/reset");
     data = await apiGet("/prompts");
   }
   return data;

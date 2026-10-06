@@ -1,6 +1,8 @@
-@"
 venv/
+.venv/
+.venv-1/
 __pycache__/
 *.db
 .env
-"@ | Out-File -Encoding utf8 .gitignore
+*.log
+_pre_integration_backup/

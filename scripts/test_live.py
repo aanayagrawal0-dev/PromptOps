@@ -3,12 +3,13 @@ judge_presence call so we can see exactly how long Sarvam is taking, instead
 of waiting blind on the full ~16-call /demo/seed chain.
 
 Run from the PromptOps folder with your venv active:
-    python test_live.py
+    python scripts/test_live.py
 """
 import sys
+from pathlib import Path
 import time
 
-sys.path.insert(0, ".")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # repo root
 from promptops import config, llm  # noqa: E402
 
 print(f"MODE={config.LLM_MODE}  MODEL={config.SARVAM_MODEL}  "
