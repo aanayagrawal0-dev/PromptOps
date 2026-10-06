@@ -222,7 +222,8 @@
       data = await ensureSeeded();
     } catch (e) {
       tbody.innerHTML = `<tr><td class="p-6 text-center text-bad-dark font-mono text-xs" colspan="5">
-        Backend offline at ${API_BASE}. Start it with: uvicorn promptops.main:app --reload</td></tr>`;
+        </td></tr>`;
+      tbody.querySelector("td").textContent = `Couldn't load data: ${e.message}`;
       return;
     }
 

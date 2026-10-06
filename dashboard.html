@@ -474,10 +474,9 @@
       textarea.value = tpl.text || '';
       liveLabel.textContent = 'USE_LIVE: true';
     } catch (e) {
-      liveLabel.textContent = 'BACKEND OFFLINE';
-      log.innerHTML = `<div class="text-bad-dark text-xs font-mono p-3 border-ink-thin bg-bad-light leading-relaxed">
-        Can't reach the backend at ${API_BASE}.<br><br>Start it with:<br>
-        <span class="font-bold">uvicorn promptops.main:app --reload</span></div>`;
+      liveLabel.textContent = 'LOAD FAILED';
+      log.innerHTML = `<div class="text-bad-dark text-xs font-mono p-3 border-ink-thin bg-bad-light leading-relaxed"></div>`;
+      log.firstChild.textContent = `Couldn't load data: ${e.message}`;
     }
   }
 

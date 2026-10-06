@@ -209,7 +209,7 @@
       showResult({
         ok: false,
         title: 'Registration Failed',
-        msg: `Couldn't reach the backend at ${API_BASE}. Start it with: uvicorn promptops.main:app --reload`,
+        msg: 'The backend returned an error:',
         body: String(e.message || e),
       });
     }
